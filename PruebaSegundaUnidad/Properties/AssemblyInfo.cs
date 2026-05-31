@@ -2,6 +2,10 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
+// Contiene los metadatos estándar necesarios para un proyecto basado en .NET
+// Incluye el título del embasado, el identificador único GUID para la exposición a COM
+// y la versión del Software.
+
 // La información general sobre un ensamblado se controla mediante lo siguiente
 // conjunto de atributos. Cambie los valores de estos atributos para modificar la información
 // asociada a un ensamblado.
