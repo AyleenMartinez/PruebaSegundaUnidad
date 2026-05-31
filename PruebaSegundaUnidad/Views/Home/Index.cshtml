@@ -1,33 +1,59 @@
 ﻿@{
-    ViewBag.Title = "Home Page";
+    ViewBag.Title = "Inicio";
 }
 
-<main>
-    <section class="row" aria-labelledby="aspnetTitle">
-        <h1 id="title">ASP.NET</h1>
-        <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-        <p><a href="https://asp.net" class="btn btn-primary btn-md">Learn more &raquo;</a></p>
-    </section>
+<div class="container" style="margin-top: 40px;">
+
+    <div class="jumbotron">
+        <h1>TechHelpWeb</h1>
+
+        <p class="lead">
+            Sistema de solicitudes de soporte técnico.
+        </p>
+
+        <p>
+            Bienvenido/a, <strong>@Session["NombreCompleto"]</strong>
+        </p>
+    </div>
 
     <div class="row">
-        <section class="col-md-4" aria-labelledby="gettingStartedTitle">
-            <h2 id="gettingStartedTitle">Getting started</h2>
+
+        <div class="col-md-4">
+            <h3>Solicitudes</h3>
             <p>
-                ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
-                enables a clean separation of concerns and gives you full control over markup
-                for enjoyable, agile development.
+                Registrar y revisar solicitudes de soporte técnico.
             </p>
-            <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
-        </section>
-        <section class="col-md-4" aria-labelledby="librariesTitle">
-            <h2 id="librariesTitle">Get more libraries</h2>
-            <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-            <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
-        </section>
-        <section class="col-md-4" aria-labelledby="hostingTitle">
-            <h2 id="hostingTitle">Web Hosting</h2>
-            <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-            <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
-        </section>
+            <p>
+                <a class="btn btn-primary" href="@Url.Action("Index", "Solicitudes")">
+                    Ir a Solicitudes
+                </a>
+            </p>
+        </div>
+
+        <div class="col-md-4">
+            <h3>Perfil</h3>
+            <p>
+                Ver o actualizar los datos del usuario.
+            </p>
+            <p>
+                <a class="btn btn-default" href="#">
+                    Próximamente
+                </a>
+            </p>
+        </div>
+
+        <div class="col-md-4">
+            <h3>Cerrar sesión</h3>
+            <p>
+                Salir del sistema de forma segura.
+            </p>
+            <p>
+                <a class="btn btn-danger" href="@Url.Action("Logout", "Auth")">
+                    Cerrar sesión
+                </a>
+            </p>
+        </div>
+
     </div>
-</main>
+
+</div>
