@@ -1,2 +1,126 @@
-﻿body {
+﻿/* Estilos propios de TechHelpWeb.
+   Bootstrap se usa como base, y aquí solo ajustamos el diseño visual del sistema. */
+
+body {
+    background-color: #f4f6f9;
+}
+
+/* Barra superior del sistema */
+.navbar {
+    border-radius: 0;
+    margin-bottom: 0;
+}
+
+/* Contenedor general de las páginas */
+.body-content {
+    background-color: #ffffff;
+    min-height: 80vh;
+    padding: 30px;
+    margin-top: 20px;
+    border-radius: 10px;
+}
+
+/* Pantalla del login */
+.login-page {
+    min-height: 62vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 40px;
+}
+
+/* Tarjeta del login */
+.login-card {
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+}
+
+/* Tarjeta base */
+.panel {
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+/* Encabezado del login */
+.panel-heading {
+    background-color: #1f2937;
+    color: white;
+    padding: 18px;
+}
+
+/* Cuerpo del login */
+.panel-body {
+    padding: 25px;
+}
+
+/* Centra los campos dentro de la tarjeta del login */
+.login-form-group {
+    width: 85%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+    /* Mantiene los labels alineados con su input */
+    .login-form-group label {
+        display: block;
+        text-align: left;
+    }
+
+/* Inputs del login y formularios */
+.form-control {
+    border-radius: 8px;
+    min-height: 38px;
+}
+
+/* Botones generales */
+.btn {
+    border-radius: 8px;
+}
+
+/* Esto ayuda porque btn-block no siempre funciona igual según la versión de Bootstrap */
+.btn-block {
+    width: 100%;
+}
+
+/* Botón del login alineado con el ancho de los inputs */
+.btn-login {
+    width: 85%;
+    display: block;
+    margin: 14px auto 0 auto;
+}
+
+/* Texto de usuario de prueba */
+.login-ayuda {
+    margin-top: 12px;
+    color: #555;
+    text-align: center;
+}
+
+/* Caja de bienvenida del Home */
+.jumbotron {
+    background-color: #eef2f7;
+    padding: 30px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+}
+
+/* Tarjetas simples del Home */
+.home-card {
+    background-color: #ffffff;
+    border: 1px solid #e1e5ea;
+    border-radius: 12px;
+    padding: 20px;
+    min-height: 170px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Footer más discreto */
+footer {
+    color: #666;
+    font-size: 14px;
 }

@@ -4,59 +4,55 @@
     ViewBag.Title = "Iniciar sesión";
 }
 
-<div class="container" style="margin-top: 60px;">
-    <div class="row">
-        <div class="col-md-4 col-md-offset-4">
+<div class="login-page">
 
-            <div class="panel panel-primary">
-                <div class="panel-heading text-center">
-                    <h3 class="panel-title">TechHelpWeb</h3>
-                    <p style="margin: 5px 0 0 0;">Inicio de sesión</p>
+    <div class="panel panel-primary login-card">
+        <div class="panel-heading text-center">
+            <h3 class="panel-title">TechHelpWeb</h3>
+            <p style="margin: 5px 0 0 0;">Inicio de sesión</p>
+        </div>
+
+        <div class="panel-body">
+
+            @* Mensaje que aparece cuando usuario o contraseña no coinciden. *@
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger">
+                    @ViewBag.Error
+                </div>
+            }
+
+            @* Formulario que envía los datos al método Login del AuthController. *@
+            @using (Html.BeginForm("Login", "Auth", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="form-group login-form-group">
+                    @Html.LabelFor(m => m.UsuarioOCorreo, "Correo o nombre de usuario")
+                    @Html.TextBoxFor(m => m.UsuarioOCorreo, new { @class = "form-control", placeholder = "Ej: admin o admin@demo.cl" })
+                    @Html.ValidationMessageFor(m => m.UsuarioOCorreo, "", new { @class = "text-danger" })
                 </div>
 
-                <div class="panel-body">
-
-                    @* Mensaje que aparece cuando usuario o contraseña no coinciden. *@
-                    @if (ViewBag.Error != null)
-                    {
-                        <div class="alert alert-danger">
-                            @ViewBag.Error
-                        </div>
-                    }
-
-                    @* Formulario que envía los datos al método Login del AuthController. *@
-                    @using (Html.BeginForm("Login", "Auth", FormMethod.Post))
-                    {
-                        @Html.AntiForgeryToken()
-
-                        <div class="form-group">
-                            @Html.LabelFor(m => m.UsuarioOCorreo, "Correo o nombre de usuario")
-                            @Html.TextBoxFor(m => m.UsuarioOCorreo, new { @class = "form-control", placeholder = "Ej: admin o admin@demo.cl" })
-                            @Html.ValidationMessageFor(m => m.UsuarioOCorreo, "", new { @class = "text-danger" })
-                        </div>
-
-                        <div class="form-group">
-                            @Html.LabelFor(m => m.Clave, "Contraseña")
-                            @Html.PasswordFor(m => m.Clave, new { @class = "form-control", placeholder = "Ingrese su contraseña" })
-                            @Html.ValidationMessageFor(m => m.Clave, "", new { @class = "text-danger" })
-                        </div>
-
-                        <button type="submit" class="btn btn-success btn-block">
-                            Ingresar
-                        </button>
-                    }
-
+                <div class="form-group login-form-group">
+                    @Html.LabelFor(m => m.Clave, "Contraseña")
+                    @Html.PasswordFor(m => m.Clave, new { @class = "form-control", placeholder = "Ingrese su contraseña" })
+                    @Html.ValidationMessageFor(m => m.Clave, "", new { @class = "text-danger" })
                 </div>
-            </div>
 
-            <div class="text-center">
-                <small>
-                    Usuario de prueba: <strong>admin</strong> / Clave: <strong>1234</strong>
-                </small>
-            </div>
+                <button type="submit" class="btn btn-success btn-block btn-login">
+                    Ingresar
+                </button>
+            }
 
         </div>
     </div>
+
+    <div class="text-center login-ayuda">
+        <small>
+            Usuario de prueba: <strong>admin</strong> / Clave: <strong>1234</strong>
+        </small>
+    </div>
+
 </div>
 
 @section Scripts {

@@ -24,7 +24,8 @@ namespace PruebaSegundaUnidad
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap/bootstrap.css",
-                      "~/Content/Site.css"));
+                      "~/Content/Site.css",
+                      "~/Content/index.css"));
         }
     }
 }
