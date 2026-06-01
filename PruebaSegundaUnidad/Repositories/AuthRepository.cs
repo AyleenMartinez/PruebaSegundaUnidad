@@ -5,27 +5,34 @@ using PruebaSegundaUnidad.Models;
 
 namespace PruebaSegundaUnidad.Repositories
 {
-    // Repositorio del login.
-    // Aquí se hacen las consultas a la BD, no se decide qué vista mostrar.
+    /// Repositorio encargado de gestionar las operaciones de base de datos 
+    /// exclusivas del flujo de autenticación.
+    /// Separa completamente la lógica de SQL de los controladores MVC.
     public class AuthRepository
     {
         #region Conexion
 
-        // Se toma la conexión guardada en Web.config con el nombre ConexionSQL.
+        // Verifica que el nombre "ConexionSQL" sea exactamente el mismo 
+        // atributo 'name' definido en la sección <connectionStrings> de tu Web.config.
         private readonly string conexion = ConfigurationManager.ConnectionStrings["ConexionSQL"].ConnectionString;
 
         #endregion
 
         #region Validacion de login
 
-        // Busca un usuario activo usando correo o nombre de usuario.
+        /// Busca un usuario activo en la base de datos comparando las credenciales ingresadas.
+        /// <param name="usuarioOCorreo">Dato ingresado en el formulario (soporta Username o Email).</param>
+        /// <param name="clave">Contraseña del usuario (idealmente pre-procesada como Hash desde el controlador).</param>
+        /// <returns>Retorna un objeto Usuario poblado si el login es exitoso; de lo contrario, retorna null.</returns>
         public Usuario ValidarLogin(string usuarioOCorreo, string clave)
         {
             Usuario usuario = null;
 
+            // El bloque 'using' asegura la liberación automática de los recursos de la conexión (con.Dispose).
             using (SqlConnection con = new SqlConnection(conexion))
             {
-                // Se consulta Usuarios y Roles para traer también el nombre del rol.
+                // Se utiliza INNER JOIN para cargar la propiedad 'NombreRol' de una sola vez.
+                // La condición 'Estado = 1' impide directamente el acceso a cuentas desactivadas.
                 string query = @"
                     SELECT 
                         U.Id,
@@ -46,15 +53,16 @@ namespace PruebaSegundaUnidad.Repositories
 
                 SqlCommand cmd = new SqlCommand(query, con);
 
-                // Parametros para evitar escribir los valores directo dentro del SQL.
+                // Parametrización estricta para evitar vulnerabilidades de Inyección SQL.
                 cmd.Parameters.AddWithValue("@usuarioOCorreo", usuarioOCorreo);
                 cmd.Parameters.AddWithValue("@clave", clave);
 
                 con.Open();
 
+                // SqlDataReader es el método más rápido (solo avance y lectura) para recuperar filas.
                 SqlDataReader reader = cmd.ExecuteReader();
 
-                // Si encontró una fila, se arma el objeto Usuario.
+                // Si reader.Read() devuelve true, se encontró una coincidencia exacta en la BD.
                 if (reader.Read())
                 {
                     usuario = new Usuario
@@ -72,7 +80,7 @@ namespace PruebaSegundaUnidad.Repositories
                 }
             }
 
-            // Si no encontró nada, usuario vuelve como null.
+            // El controlador evaluará esto: si es null, muestra error; si tiene datos, crea la sesión.
             return usuario;
         }
 
