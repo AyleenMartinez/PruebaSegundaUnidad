@@ -1,30 +1,34 @@
 ﻿using System.Web.Mvc;
+using System.Linq;
+using PruebaSegundaUnidad.Repositories;
 
 namespace PruebaSegundaUnidad.Controllers
 {
-    /// Controlador principal que sirve como punto de entrada al sistema 
-    /// una vez que el usuario ha superado la barrera de autenticación.
     public class HomeController : Controller
     {
-        #region Inicio
+        // Instanciamos los repositorios para leer los datos
+        private readonly SolicitudRepository _solicitudRepo = new SolicitudRepository();
+        private readonly UsuarioRepository _usuarioRepo = new UsuarioRepository();
 
-        /// Petición GET: Carga el panel de control (Dashboard) o página de bienvenida.
-        /// <returns>Vista principal o redirección al login si se intenta entrar sin permiso.</returns>
+        [HttpGet]
         public ActionResult Index()
         {
-            // Control de acceso manual: 
-            // Si alguien intenta escribir "/Home/Index" en la URL sin haber pasado
-            // por el AuthController, la variable Session["UsuarioId"] estará vacía,
-            // por lo que será expulsado a la pantalla de inicio de sesión.
-            if (Session["UsuarioId"] == null)
+            if (Session["UsuarioId"] == null) return RedirectToAction("Login", "Auth");
+
+            // Solo hacemos las consultas si el usuario es Admin o Soporte
+            if (Session["Rol"]?.ToString() == "Administrador" || Session["Rol"]?.ToString() == "Soporte")
             {
-                return RedirectToAction("Login", "Auth");
+                var todasLasSolicitudes = _solicitudRepo.ObtenerTodas();
+
+                // Filtramos por el nombre del estado (o por el ID del estado)
+                ViewBag.Pendientes = todasLasSolicitudes.Count(s => s.NombreEstado == "Pendiente");
+                ViewBag.EnProceso = todasLasSolicitudes.Count(s => s.NombreEstado == "En proceso");
+                ViewBag.Resueltas = todasLasSolicitudes.Count(s => s.NombreEstado == "Resuelto");
+
+                ViewBag.TotalUsuarios = _usuarioRepo.ObtenerTodos().Count(u => u.Estado == true);
             }
 
-            // Si la sesión es válida, se muestra la interfaz del sistema.
             return View();
         }
-
-        #endregion
     }
 }

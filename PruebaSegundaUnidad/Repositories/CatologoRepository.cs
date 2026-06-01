@@ -70,7 +70,7 @@ namespace PruebaSegundaUnidad.Repositories
             List<TipoProblema> lista = new List<TipoProblema>();
             using (SqlConnection con = new SqlConnection(conexion))
             {
-                SqlCommand cmd = new SqlCommand("SELECT Id, DescripcionProblema FROM TiposProblema", con);
+                SqlCommand cmd = new SqlCommand("SELECT Id, NombreTipoProblema FROM TiposProblema", con);
                 con.Open();
 
                 SqlDataReader reader = cmd.ExecuteReader();
@@ -79,7 +79,7 @@ namespace PruebaSegundaUnidad.Repositories
                     lista.Add(new TipoProblema
                     {
                         Id = Convert.ToInt32(reader["Id"]),
-                        DescripcionProblema = reader["DescripcionProblema"].ToString()
+                        NombreTipoProblema = reader["NombreTipoProblema"].ToString()
                     });
                 }
             }

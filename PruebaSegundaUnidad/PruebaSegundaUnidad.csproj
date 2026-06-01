@@ -147,6 +147,7 @@
     <Compile Include="Models\PerfilViewModel.cs" />
     <Compile Include="Models\Rol.cs" />
     <Compile Include="Models\SolicitudSoporte.cs" />
+    <Compile Include="Models\TipoProblema.cs" />
     <Compile Include="Models\Usuario.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\AuthRepository.cs" />
@@ -206,6 +207,9 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Auth\Login.cshtml" />
     <Content Include="Views\Solicitudes\Index.cshtml" />
+    <Content Include="Views\Perfil\Index.cshtml" />
+    <Content Include="Views\Usuarios\Crear.cshtml" />
+    <Content Include="Views\Usuarios\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -13,15 +13,6 @@
         /// Nombre descriptivo del área solicitante.
         public string NombreArea { get; set; }
     }
-
-    /// Define las categorías de los incidentes que los usuarios pueden reportar.
-    /// (Ejemplo: Problema con computador, Internet, Software).
-    public class TipoProblema
-    {
-        public int Id { get; set; }
-        public string DescripcionProblema { get; set; }
-    }
-
     /// Establece los niveles de urgencia o SLA para la atención del ticket.
     /// (Ejemplo: Baja, Media, Alta).
     public class Prioridad

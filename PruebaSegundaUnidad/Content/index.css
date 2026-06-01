@@ -144,3 +144,160 @@ footer {
     color: #666;
     font-size: 14px;
 }
+
+/* Estilo generales y Tarjetas Home. */
+.home-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+    background: #fff;
+}
+
+    .home-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    }
+
+    .home-card h3 {
+        color: #0056b3;
+        margin-top: 0;
+    }
+
+    .home-card p {
+        height: 40px;
+        color: #555;
+    }
+
+/* Dashboard Administrativo */
+.dash-card {
+    border-radius: 8px;
+    color: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+    .dash-card h1 {
+        margin: 0;
+        font-size: 3em;
+    }
+
+    .dash-card h4 {
+        margin-top: 5px;
+        opacity: 0.9;
+    }
+
+    .dash-card i {
+        font-size: 4em;
+        opacity: 0.3;
+        float: right;
+        margin-top: -10px;
+    }
+
+.bg-primary-dark {
+    background-color: #004494;
+}
+
+.bg-success {
+    background-color: #28a745;
+}
+
+.bg-warning {
+    background-color: #ffc107;
+    color: #333 !important;
+}
+
+.bg-danger {
+    background-color: #dc3545;
+}
+
+/* Paneles de Formularios (Soporte, Perfil, Usuarios */
+.panel-soporte {
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border: none;
+    margin-top: 20px;
+}
+
+    .panel-soporte .panel-heading {
+        background-color: #0056b3;
+        color: white;
+        border-radius: 8px 8px 0 0;
+        padding: 15px 20px;
+    }
+
+.form-control[readonly] {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}
+
+/* Medidor de Contraseña y Contadores */
+.strength-meter {
+    height: 5px;
+    background-color: #e9ecef;
+    border-radius: 3px;
+    margin-top: 5px;
+}
+
+    .strength-meter div {
+        height: 100%;
+        border-radius: 3px;
+        width: 0;
+        transition: width 0.3s;
+    }
+
+.char-counter {
+    font-size: 0.85em;
+    color: #6c757d;
+    margin-top: 5px;
+    display: block;
+}
+
+/* =========================================
+   ESTILOS DEL DASHBOARD ADMINISTRATIVO
+   ========================================= */
+.dash-card {
+    border-radius: 8px;
+    color: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+    .dash-card h1 {
+        margin: 0;
+        font-size: 3em;
+    }
+
+    .dash-card h4 {
+        margin-top: 5px;
+        opacity: 0.9;
+    }
+
+    .dash-card i.bg-icon {
+        font-size: 4em;
+        opacity: 0.3;
+        float: right;
+        margin-top: -10px;
+    }
+
+.bg-primary-dark {
+    background-color: #004494;
+}
+
+.bg-success {
+    background-color: #28a745;
+}
+
+.bg-warning {
+    background-color: #ffc107;
+    color: #333 !important;
+}
+
+.bg-danger {
+    background-color: #dc3545;
+}

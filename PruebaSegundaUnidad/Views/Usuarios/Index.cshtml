@@ -1,0 +1,66 @@
+﻿@model IEnumerable<PruebaSegundaUnidad.Models.Usuario>
+@{
+    ViewBag.Title = "Gestión de Usuarios";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <h2 class="page-header">
+            <i class="fa fa-users-cog"></i> Administración de Usuarios
+            <a href="@Url.Action("Crear", "Usuarios")" class="btn btn-success pull-right">
+                <i class="fa fa-plus"></i> Nuevo Usuario
+            </a>
+        </h2>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover table-bordered">
+        <thead style="background-color: #0056b3; color: white;">
+            <tr>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th>Creación</th>
+                <th class="text-center">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @* Verificamos que el modelo tenga datos antes de recorrerlo *@
+            @if (Model != null && Model.Any())
+            {
+                foreach (var usuario in Model)
+                {
+                    <tr>
+                        <td>@usuario.NombreCompleto</td>
+                        <td>@usuario.Correo</td>
+                        <td>@usuario.NombreRol</td>
+                        <td>
+                            @if (usuario.Estado)
+                            {
+                                <span class="label label-success">Activo</span>
+                            }
+                            else
+                            {
+                                <span class="label label-danger">Inactivo</span>
+                            }
+                        </td>
+                        <td>@usuario.FechaRegistro.ToString("dd/MM/yyyy")</td>
+                        <td class="text-center">
+                            @* En un entorno real, estos botones apuntarían a métodos Editar/Desactivar *@
+                            <button class="btn btn-info btn-sm" title="Ver/Editar"><i class="fa fa-edit"></i></button>
+                            <button class="btn btn-danger btn-sm" title="Desactivar"><i class="fa fa-ban"></i></button>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6" class="text-center">No hay usuarios registrados en el sistema.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

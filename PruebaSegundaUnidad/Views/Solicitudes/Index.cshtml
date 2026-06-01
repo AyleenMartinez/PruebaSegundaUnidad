@@ -1,10 +1,254 @@
-﻿<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8" />
-    <title></title>
-</head>
-<body>
+﻿@{
+    ViewBag.Title = "Soporte Técnico (API)";
+}
 
-</body>
-</html>
+<div class="row">
+    <div class="col-md-12">
+        <h2 class="page-header"><i class="fa fa-ticket-alt"></i> Gestión de Soporte Técnico</h2>
+
+        <!-- Contenedor dinámico para mostrar las alertas de éxito/error de la API -->
+        <div id="alertasContainer"></div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- ======================================================= -->
+    <!-- FORMULARIO DE REGISTRO (POST vía API) -->
+    <!-- ======================================================= -->
+    <div class="col-md-4">
+        <div class="panel panel-default panel-soporte">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-plus-circle"></i> Nueva Solicitud</h3>
+            </div>
+            <div class="panel-body">
+                <!-- IMPORTANTE: El form no tiene action ni method porque se envía por JS -->
+                <form id="frmNuevaSolicitud">
+
+                    <div class="form-group">
+                        <label>Solicitante</label>
+                        <input type="text" class="form-control" value="@Session["NombreCompleto"]" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Área <span class="text-danger">*</span></label>
+                        <select class="form-control" id="IdArea" required>
+                            <option value="">-- Seleccione Área --</option>
+                            @foreach (var area in ViewBag.Areas)
+                            {
+                                <option value="@area.Id">@area.NombreArea</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tipo de Problema <span class="text-danger">*</span></label>
+                        <select class="form-control" id="IdTipoProblema" required>
+                            <option value="">-- Seleccione Problema --</option>
+                            @foreach (var tipo in (List<PruebaSegundaUnidad.Models.TipoProblema>)ViewBag.TiposProblema)
+                            {
+                                <option value="@tipo.Id">@tipo.NombreTipoProblema</option>
+                            }
+                        </select>
+                    </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Prioridad <span class="text-danger">*</span></label>
+                        <select class="form-control" id="IdPrioridad" required>
+                            <!-- Los values corresponden a los IDs de la tabla Prioridades en BD -->
+                            <option value="1">Baja</option>
+                            <option value="2" selected>Media</option>
+                            <option value="3">Alta</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Descripción <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="Descripcion" rows="4" minlength="10" required placeholder="Mínimo 10 caracteres..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fa fa-paper-plane"></i> Enviar Solicitud
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- TABLA DE HISTORIAL (GET, PUT, DELETE vía API) -->
+    <!-- ======================================================= -->
+    <div class="col-md-8">
+        <div class="panel panel-default panel-soporte">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-list"></i> Historial de Requerimientos</h3>
+            </div>
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="tablaSolicitudes">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Fecha</th>
+                                <th>Usuario</th>
+                                <th>Problema</th>
+                                <th>Prioridad</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Las filas se inyectarán aquí mediante JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Variables de sesión inyectadas desde Razor para usarlas en JS
+        const usuarioActualId = @Session["UsuarioId"];
+        const rolUsuario = '@Session["Rol"]';
+
+        document.addEventListener("DOMContentLoaded", function () {
+            cargarSolicitudes();
+
+            // Interceptar el envío del formulario
+            document.getElementById('frmNuevaSolicitud').addEventListener('submit', function (e) {
+                e.preventDefault();
+                crearSolicitud();
+            });
+        });
+
+        // -------------------------------------------------------------
+        // FUNCIÓN UTILIDAD: Mostrar Alertas Bootstrap dinámicas
+        // -------------------------------------------------------------
+        function mostrarAlerta(mensaje, tipo) {
+            const container = document.getElementById('alertasContainer');
+            container.innerHTML = `
+                <div class="alert alert-${tipo} alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    ${mensaje}
+                </div>`;
+
+            // Ocultar la alerta automáticamente después de 4 segundos
+            setTimeout(() => container.innerHTML = '', 4000);
+        }
+
+        // -------------------------------------------------------------
+        // ENDPOINT GET: Listar todas las solicitudes
+        // -------------------------------------------------------------
+        function cargarSolicitudes() {
+            fetch('/api/solicitudes')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.querySelector('#tablaSolicitudes tbody');
+                    tbody.innerHTML = '';
+
+                    data.forEach(sol => {
+                        // Formatear Fecha
+                        const fechaObj = new Date(sol.FechaRegistro);
+                        const fechaFmt = fechaObj.toLocaleDateString('es-CL');
+
+                        // Configurar colores de estado (Fase 5: Estilos distintos)
+                        let badgeEstado = '';
+                        if (sol.IdEstado === 1) badgeEstado = '<span class="label label-danger">Pendiente</span>';
+                        else if (sol.IdEstado === 2) badgeEstado = '<span class="label label-warning">En Proceso</span>';
+                        else badgeEstado = '<span class="label label-success">Resuelto</span>';
+
+                        // Construcción de los botones de acción según el Rol
+                        let botones = `<button class="btn btn-default btn-xs" onclick="alert('Descripción:\\n\\n${sol.Descripcion}')" title="Ver Detalles"><i class="fa fa-eye"></i></button> `;
+
+                        // Si es Administrador o Soporte, pueden cambiar estado o eliminar
+                        if (rolUsuario === "Administrador" || rolUsuario === "Soporte") {
+                            botones += `
+                                <button class="btn btn-primary btn-xs" onclick="actualizarEstado(${sol.Id}, 2)" title="Marcar En Proceso"><i class="fa fa-spinner"></i></button>
+                                <button class="btn btn-success btn-xs" onclick="actualizarEstado(${sol.Id}, 3)" title="Marcar Resuelto"><i class="fa fa-check"></i></button>
+                                <button class="btn btn-danger btn-xs" onclick="eliminarSolicitud(${sol.Id})" title="Eliminar"><i class="fa fa-trash"></i></button>
+                            `;
+                        }
+
+                        // Inyectar fila HTML
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>#${sol.Id}</td>
+                                <td>${fechaFmt}</td>
+                                <td>${sol.NombreUsuario}</td>
+                                <td>${sol.DescripcionProblema}</td>
+                                <td>${sol.NivelPrioridad}</td>
+                                <td>${badgeEstado}</td>
+                                <td>${botones}</td>
+                            </tr>
+                        `;
+                    });
+                })
+                .catch(err => console.error("Error al cargar solicitudes:", err));
+        }
+
+        // -------------------------------------------------------------
+        // ENDPOINT POST: Crear nueva solicitud
+        // -------------------------------------------------------------
+        function crearSolicitud() {
+            const nuevaSolicitud = {
+                UsuarioId: usuarioActualId,
+                IdArea: document.getElementById('IdArea').value,
+                IdTipoProblema: document.getElementById('IdTipoProblema').value,
+                IdPrioridad: document.getElementById('IdPrioridad').value,
+                Descripcion: document.getElementById('Descripcion').value
+            };
+
+            fetch('/api/solicitudes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(nuevaSolicitud)
+            })
+            .then(response => {
+                if (response.ok) {
+                    mostrarAlerta('La solicitud fue registrada exitosamente.', 'success');
+                    document.getElementById('frmNuevaSolicitud').reset();
+                    cargarSolicitudes(); // Recargar la tabla
+                } else {
+                    mostrarAlerta('Error al registrar la solicitud. Revisa los datos.', 'danger');
+                }
+            })
+            .catch(err => console.error(err));
+        }
+
+        // -------------------------------------------------------------
+        // ENDPOINT PUT: Cambiar estado
+        // -------------------------------------------------------------
+        function actualizarEstado(id, nuevoEstadoId) {
+            fetch(`/api/solicitudes/${id}/estado`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ IdEstado: nuevoEstadoId })
+            })
+            .then(response => {
+                if (response.ok) {
+                    mostrarAlerta('Estado de la solicitud actualizado.', 'info');
+                    cargarSolicitudes(); // Recargar la tabla
+                }
+            });
+        }
+
+        // -------------------------------------------------------------
+        // ENDPOINT DELETE: Eliminar solicitud
+        // -------------------------------------------------------------
+        function eliminarSolicitud(id) {
+            if (confirm('¿Estás seguro de que deseas eliminar permanentemente esta solicitud?')) {
+                fetch(`/api/solicitudes/${id}`, {
+                    method: 'DELETE'
+                })
+                .then(response => {
+                    if (response.ok) {
+                        mostrarAlerta('Solicitud eliminada del sistema.', 'warning');
+                        cargarSolicitudes(); // Recargar la tabla
+                    }
+                });
+            }
+        }
+    </script>
+}

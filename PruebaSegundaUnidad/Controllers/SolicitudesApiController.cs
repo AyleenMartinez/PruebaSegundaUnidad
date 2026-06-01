@@ -73,6 +73,24 @@ namespace PruebaSegundaUnidad.Controllers
             return NotFound();
         }
 
+        /// <summary>
+        /// ENDPOINT: GET /api/solicitudes/{id}
+        /// Obtiene los detalles de una solicitud específica.
+        /// </summary>
+        [HttpGet]
+        [Route("{id}")]
+        public IHttpActionResult ObtenerPorId(int id)
+        {
+            var solicitud = _repo.ObtenerPorId(id);
+
+            if (solicitud == null)
+            {
+                return NotFound(); // Retorna 404 si el ID no existe
+            }
+
+            return Ok(solicitud); // Retorna 200 con el objeto JSON
+        }
+
         /// ENDPOINT: DELETE /api/solicitudes/{id}
         /// Elimina permanentemente una solicitud de soporte del sistema.
         /// <param name="id">El identificador único de la solicitud a eliminar en la URL.</param>

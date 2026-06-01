@@ -1,0 +1,33 @@
+﻿@model PruebaSegundaUnidad.Models.PerfilViewModel
+@{ ViewBag.Title = "Mi Perfil"; }
+
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        <h2>Mi Perfil</h2>
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <p><strong>Nombre:</strong> @Model.NombreCompleto</p>
+                <p><strong>Correo:</strong> @Model.Correo</p>
+                <hr />
+                @using (Html.BeginForm("ActualizarClave", "Perfil", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(m => m.UsuarioId)
+                    <div class="form-group">
+                        <label>Contraseña Actual <span class="text-danger">*</span></label>
+                        @Html.PasswordFor(m => m.ClaveActual, new { @class = "form-control", required = "required" })
+                    </div>
+                    <div class="form-group">
+                        <label>Nueva Contraseña</label>
+                        @Html.PasswordFor(m => m.NuevaClave, new { @class = "form-control" })
+                    </div>
+                    <div class="form-group">
+                        <label>Confirmar</label>
+                        @Html.PasswordFor(m => m.ConfirmarClave, new { @class = "form-control" })
+                    </div>
+                    <button type="submit" class="btn btn-primary">Cambiar Contraseña</button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
