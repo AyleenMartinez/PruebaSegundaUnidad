@@ -73,5 +73,78 @@ namespace PruebaSegundaUnidad.Repositories
                 cmd.ExecuteNonQuery();
             }
         }
+
+        /// <summary>
+        /// Invierte el estado actual del usuario (Activo <-> Inactivo).
+        /// </summary>
+        public void CambiarEstado(int id)
+        {
+            using (SqlConnection con = new SqlConnection(conexion))
+            {
+                // La consulta SQL invierte el bit: si es 1 pasa a 0, si es 0 pasa a 1.
+                string query = "UPDATE Usuarios SET Estado = ~Estado WHERE Id = @Id";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@Id", id);
+
+                con.Open();
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        /// <summary>
+        /// Obtiene un usuario específico por su ID para editarlo.
+        /// </summary>
+        public Usuario ObtenerPorId(int id)
+        {
+            Usuario usuario = null;
+            using (SqlConnection con = new SqlConnection(conexion))
+            {
+                string query = "SELECT Id, RolId, NombreCompleto, NombreUsuario, Correo, Estado FROM Usuarios WHERE Id = @Id";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@Id", id);
+
+                con.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    usuario = new Usuario
+                    {
+                        Id = Convert.ToInt32(reader["Id"]),
+                        RolId = Convert.ToInt32(reader["RolId"]),
+                        NombreCompleto = reader["NombreCompleto"].ToString(),
+                        NombreUsuario = reader["NombreUsuario"].ToString(),
+                        Correo = reader["Correo"].ToString(),
+                        Estado = Convert.ToBoolean(reader["Estado"])
+                    };
+                }
+            }
+            return usuario;
+        }
+
+        /// <summary>
+        /// Actualiza los datos de un usuario existente.
+        /// </summary>
+        public void Actualizar(Usuario usuario)
+        {
+            using (SqlConnection con = new SqlConnection(conexion))
+            {
+                // Nota: No actualizamos la contraseña aquí por seguridad.
+                string query = @"UPDATE Usuarios 
+                                 SET RolId = @RolId, NombreCompleto = @NombreCompleto, 
+                                     NombreUsuario = @NombreUsuario, Correo = @Correo, Estado = @Estado 
+                                 WHERE Id = @Id";
+                SqlCommand cmd = new SqlCommand(query, con);
+
+                cmd.Parameters.AddWithValue("@RolId", usuario.RolId);
+                cmd.Parameters.AddWithValue("@NombreCompleto", usuario.NombreCompleto);
+                cmd.Parameters.AddWithValue("@NombreUsuario", usuario.NombreUsuario);
+                cmd.Parameters.AddWithValue("@Correo", usuario.Correo);
+                cmd.Parameters.AddWithValue("@Estado", usuario.Estado);
+                cmd.Parameters.AddWithValue("@Id", usuario.Id);
+
+                con.Open();
+                cmd.ExecuteNonQuery();
+            }
+        }
     }
 }

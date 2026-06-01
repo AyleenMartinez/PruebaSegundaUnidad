@@ -48,9 +48,24 @@
                         </td>
                         <td>@usuario.FechaRegistro.ToString("dd/MM/yyyy")</td>
                         <td class="text-center">
-                            @* En un entorno real, estos botones apuntarían a métodos Editar/Desactivar *@
-                            <button class="btn btn-info btn-sm" title="Ver/Editar"><i class="fa fa-edit"></i></button>
-                            <button class="btn btn-danger btn-sm" title="Desactivar"><i class="fa fa-ban"></i></button>
+
+                            <a href="@Url.Action("Editar", "Usuarios", new { id = usuario.Id })" class="btn btn-info btn-sm" title="Ver/Editar">
+                                <i class="fa fa-edit"></i>
+                            </a>
+
+                            @if (usuario.Estado)
+                            {
+                                <a href="@Url.Action("CambiarEstado", "Usuarios", new { id = usuario.Id })" class="btn btn-danger btn-sm" title="Desactivar" onclick="return confirm('¿Estás seguro de que deseas desactivar a este usuario?');">
+                                    <i class="fa fa-ban"></i>
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="@Url.Action("CambiarEstado", "Usuarios", new { id = usuario.Id })" class="btn btn-success btn-sm" title="Activar" onclick="return confirm('¿Estás seguro de que deseas reactivar a este usuario?');">
+                                    <i class="fa fa-check"></i>
+                                </a>
+                            }
+
                         </td>
                     </tr>
                 }

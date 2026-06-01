@@ -1,0 +1,64 @@
+﻿@model PruebaSegundaUnidad.Models.Usuario
+@{
+    ViewBag.Title = "Editar Usuario";
+}
+
+<div class="row">
+    <div class="col-md-8 col-md-offset-2">
+        <h2 class="page-header"><i class="fa fa-user-edit"></i> Editar Usuario</h2>
+
+        <div class="panel panel-default panel-soporte">
+            <div class="panel-body">
+                @using (Html.BeginForm("Editar", "Usuarios", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+
+                    @Html.HiddenFor(m => m.Id)
+
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label>Nombre Completo <span class="text-danger">*</span></label>
+                            @Html.TextBoxFor(m => m.NombreCompleto, new { @class = "form-control", required = "required" })
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>Nombre de Usuario <span class="text-danger">*</span></label>
+                            @Html.TextBoxFor(m => m.NombreUsuario, new { @class = "form-control", required = "required" })
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label>Correo Electrónico <span class="text-danger">*</span></label>
+                            @Html.TextBoxFor(m => m.Correo, new { @class = "form-control", type = "email", required = "required" })
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>Rol en el Sistema <span class="text-danger">*</span></label>
+                            <select class="form-control" name="RolId" required>
+                                @foreach (var rol in ViewBag.Roles)
+                                {
+                                    <option value="@rol.Id" @(Model.RolId == rol.Id ? "selected" : "")>@rol.NombreRol</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 form-group">
+                            <label>Estado <span class="text-danger">*</span></label>
+                            <select class="form-control" name="Estado" required>
+                                <option value="true" @(Model.Estado ? "selected" : "")>Activo</option>
+                                <option value="false" @(!Model.Estado ? "selected" : "")>Inactivo</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="text-right">
+                        <a href="@Url.Action("Index", "Usuarios")" class="btn btn-default">Cancelar</a>
+                        <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Guardar Cambios</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
