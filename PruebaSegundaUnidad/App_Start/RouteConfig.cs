@@ -5,6 +5,9 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 
+// Mapa de navegación de la aplicación ASP.NET MVC.
+// Define cómo se asignan las URL a los controladores y acciones correspondientes.
+
 namespace PruebaSegundaUnidad
 {
     public class RouteConfig

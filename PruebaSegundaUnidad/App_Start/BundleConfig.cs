@@ -1,6 +1,9 @@
 ﻿using System.Web;
 using System.Web.Optimization;
 
+// Optimizar de rendmiento de la aplicación ASP.NET MVC
+// mediante la agrupación y minificación de archivos JavaScript y CSS.
+
 namespace PruebaSegundaUnidad
 {
     public class BundleConfig
