@@ -1,17 +1,13 @@
-﻿/* Estilos propios de TechHelpWeb.
-   Bootstrap se usa como base, y aquí solo ajustamos el diseño visual del sistema. */
-
+﻿/* TechHelpDB - Hoja de Estilos Principal (index.css / Site.css)
+  
+/* 1. CONFIGURACIÓN GENERAL Y LAYOUT
+Establece un color de fondo gris claro para que las tarjetas blancas destaquen */
 body {
     background-color: #f4f6f9;
 }
 
-/* Barra superior del sistema */
-.navbar {
-    border-radius: 0;
-    margin-bottom: 0;
-}
-
-/* Contenedor general de las páginas */
+/* Contenedor general que envuelve las vistas.
+    Reemplaza el margen por defecto de MVC y añade un diseño de "lienzo blanco" con bordes redondeados */
 .body-content {
     background-color: #ffffff;
     min-height: 80vh;
@@ -20,7 +16,22 @@ body {
     border-radius: 10px;
 }
 
-/* Pantalla del login */
+/* Corrige un error de Bootstrap donde las listas de descripción se truncan
+   si los términos son muy largos (Heredado de la base MVC) */
+.dl-horizontal dt {
+    white-space: normal;
+}
+
+/* Barra superior del sistema sin bordes redondeados para que se pegue al margen */
+.navbar {
+    border-radius: 0;
+    margin-bottom: 0;
+}
+
+/* 2. MÓDULO DE AUTENTICACIÓN (PANTALLA DE LOGIN) */
+
+/* Contenedor que utiliza Flexbox para centrar la tarjeta de login 
+   tanto vertical como horizontalmente en la pantalla */
 .login-page {
     min-height: 62vh;
     display: flex;
@@ -30,14 +41,38 @@ body {
     padding-bottom: 40px;
 }
 
-/* Tarjeta del login */
+/* Define el tamaño máximo de la tarjeta de login para que no se estire
+   en monitores grandes, manteniéndose centrada */
 .login-card {
     width: 100%;
     max-width: 420px;
     margin: 0 auto;
 }
 
-/* Tarjeta base */
+/* Agrupa los inputs del login para que ocupen el 85% de la tarjeta, 
+   dejando un margen estético a los lados */
+.login-form-group {
+    width: 85%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+    /* Fuerza a que las etiquetas de texto del login se alineen a la izquierda 
+   sobre sus respectivos campos de entrada */
+    .login-form-group label {
+        display: block;
+        text-align: left;
+    }
+
+/* Estilo para los mensajes de ayuda o credenciales de prueba debajo del botón */
+.login-ayuda {
+    margin-top: 12px;
+    color: #555;
+    text-align: center;
+}
+
+/* 3. COMPONENTES REUTILIZABLES (TARJETAS, INPUTS Y BOTONES)
+    Estilo base para crear el efecto de "Tarjeta" con sombra suave */
 .panel {
     background-color: #ffffff;
     border: 1px solid #ddd;
@@ -46,62 +81,47 @@ body {
     overflow: hidden;
 }
 
-/* Encabezado del login */
+/* Encabezado oscuro para contrastar con el fondo blanco de la tarjeta */
 .panel-heading {
     background-color: #1f2937;
     color: white;
     padding: 18px;
 }
 
-/* Cuerpo del login */
+/* Espaciado interno estándar para el contenido de las tarjetas */
 .panel-body {
     padding: 25px;
 }
 
-/* Centra los campos dentro de la tarjeta del login */
-.login-form-group {
-    width: 85%;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-    /* Mantiene los labels alineados con su input */
-    .login-form-group label {
-        display: block;
-        text-align: left;
-    }
-
-/* Inputs del login y formularios */
+/* Estiliza los campos de texto, listas desplegables y áreas de texto. 
+   NOTA: Se eliminó intencionalmente la regla "max-width: 280px" de MVC 
+   para permitir que los inputs se adapten al 100% de su contenedor */
 .form-control {
     border-radius: 8px;
     min-height: 38px;
 }
 
-/* Botones generales */
+/* Aplica un borde redondeado uniforme a todos los botones del sistema */
 .btn {
     border-radius: 8px;
 }
 
-/* Esto ayuda porque btn-block no siempre funciona igual según la versión de Bootstrap */
+/* Clase de apoyo para forzar que un botón ocupe todo el ancho disponible */
 .btn-block {
     width: 100%;
 }
 
-/* Botón del login alineado con el ancho de los inputs */
+/* Botón específico para el formulario de login, alineado exactamente
+   con el mismo 85% de ancho que tienen los inputs superiores */
 .btn-login {
     width: 85%;
     display: block;
     margin: 14px auto 0 auto;
 }
 
-/* Texto de usuario de prueba */
-.login-ayuda {
-    margin-top: 12px;
-    color: #555;
-    text-align: center;
-}
-
-/* Caja de bienvenida del Home */
+/* 4. VISTAS PRINCIPALES Y FOOTER (HOME / DASHBOARD)
+   Modifica el recuadro de bienvenida (Jumbotron) de Bootstrap para 
+   que coincida con la paleta de colores moderna del sistema */
 .jumbotron {
     background-color: #eef2f7;
     padding: 30px;
@@ -109,7 +129,7 @@ body {
     margin-bottom: 30px;
 }
 
-/* Tarjetas simples del Home */
+/* Tarjetas informativas simples para mostrar resúmenes en la página de inicio */
 .home-card {
     background-color: #ffffff;
     border: 1px solid #e1e5ea;
@@ -119,7 +139,7 @@ body {
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
 }
 
-/* Footer más discreto */
+/* Aplica un color gris y tamaño reducido al texto del pie de página */
 footer {
     color: #666;
     font-size: 14px;
