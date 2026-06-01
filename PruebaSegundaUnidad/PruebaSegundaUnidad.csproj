@@ -140,8 +140,10 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\ActualizarEstadoRequest.cs" />
+    <Compile Include="Models\AreaSolicitante.cs" />
     <Compile Include="Models\LoginViewModel.cs" />
+    <Compile Include="Models\PerfilViewModel.cs" />
+    <Compile Include="Models\Rol.cs" />
     <Compile Include="Models\SolicitudSoporte.cs" />
     <Compile Include="Models\Usuario.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
