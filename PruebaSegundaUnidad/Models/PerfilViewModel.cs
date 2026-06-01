@@ -3,38 +3,50 @@
 namespace PruebaSegundaUnidad.Models
 {
     /// ViewModel encargado de gestionar la vista del perfil del usuario autenticado.
-    /// Transporta los datos básicos para visualización (solo lectura) y contiene las validaciones 
-    /// estrictas necesarias para procesar el cambio de contraseña de forma segura.
+    /// Contiene los datos visibles del perfil y las validaciones para cambiar contraseña.
     public class PerfilViewModel
     {
-        /// Identificador interno del usuario. Generalmente se mantiene oculto en la vista 
-        /// mediante un campo @Html.HiddenFor() para saber qué registro actualizar.
+        #region Datos visibles del perfil
+
+        /// Id interno del usuario que inició sesión.
         public int UsuarioId { get; set; }
 
-        /// Nombre completo del usuario, destinado a ser mostrado como texto informativo en la interfaz.
+        /// Nombre completo del usuario, se muestra en la vista de perfil.
         public string NombreCompleto { get; set; }
 
-        /// Correo electrónico del usuario, destinado a visualización en el perfil.
+        /// Correo del usuario, se muestra en la vista de perfil.
         public string Correo { get; set; }
 
-        /// Contraseña vigente del usuario. Es requerida por el backend para verificar 
-        /// la identidad antes de autorizar la modificación del hash en la base de datos.
+        #endregion
+
+        #region Datos para cambio de contraseña
+
+        /// Contraseña actual del usuario.
+        /// Se pide para confirmar que quien cambia la clave es el dueño de la cuenta.
         [Required(ErrorMessage = "La contraseña actual es obligatoria")]
         [DataType(DataType.Password)]
         public string ClaveActual { get; set; }
 
-        /// Nueva contraseña propuesta por el usuario. Incluye validación de longitud mínima
-        /// para cumplir con los estándares básicos de seguridad exigidos en la rúbrica.
+        /// Nueva contraseña que el usuario quiere guardar.
         [Required(ErrorMessage = "La nueva contraseña es obligatoria")]
+
+        // Se exige un mínimo de 6 caracteres para evitar claves demasiado simples
         [MinLength(6, ErrorMessage = "La contraseña debe tener al menos 6 caracteres")]
+
+        // Indica que este campo se debe tratar como contraseña en la vista
         [DataType(DataType.Password)]
         public string NuevaClave { get; set; }
 
-        /// Campo de seguridad auxiliar. El atributo [Compare] instruye a MVC para que evalúe 
-        /// automáticamente (tanto en frontend como en backend) que este valor sea idéntico a 'NuevaClave'.
+        /// Confirmación de la nueva contraseña.
         [Required(ErrorMessage = "Debe confirmar la nueva contraseña")]
+
+        // Indica que este campo también se debe mostrar como contraseña
         [DataType(DataType.Password)]
+
+        // Compara este campo con NuevaClave y valida que sean iguales
         [Compare("NuevaClave", ErrorMessage = "Las contraseñas no coinciden")]
         public string ConfirmarClave { get; set; }
+
+        #endregion
     }
 }
