@@ -1,0 +1,187 @@
+﻿/* ==========================================================
+   solicitudes.css
+   Estilos propios del módulo de solicitudes de soporte.
+   ========================================================== */
+
+
+/* Antes: la tabla crecía demasiado porque los botones estaban separados por bloques.
+   Ahora: las acciones quedan compactas para que cada fila sea más baja y fácil de leer. */
+
+
+/* Paneles principales del formulario y la tabla */
+.panel-soporte {
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+
+    /* Encabezado de panel */
+    .panel-soporte .panel-heading {
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+/* Alinea verticalmente las celdas de la tabla */
+.tabla-solicitudes td,
+.tabla-solicitudes th {
+    vertical-align: middle !important;
+}
+
+/* Evita que la fecha se corte demasiado */
+.columna-fecha {
+    min-width: 90px;
+}
+
+/* Evita que acciones quede demasiado angosto */
+.columna-acciones {
+    min-width: 260px;
+}
+
+/* Acciones compactas en una misma zona */
+.acciones-compactas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+}
+
+/* Select pequeño para cambiar estado */
+.select-estado {
+    width: 120px;
+    display: inline-block;
+}
+
+/* Botones dentro de acciones */
+.btn-accion {
+    margin-bottom: 3px;
+}
+
+/* Antes: si cambiabas el select y no apretabas Actualizar, no quedaba claro.
+   Ahora: el select se marca visualmente cuando tiene un cambio pendiente. */
+.select-cambio-pendiente {
+    border: 2px solid #f0ad4e !important;
+    background-color: #fff8e5;
+}
+
+/* Antes: la fila se veía igual aunque hubiera un cambio sin guardar.
+   Ahora: la fila queda marcada suavemente cuando el estado está pendiente de confirmar. */
+.fila-cambio-pendiente {
+    background-color: #fffaf0 !important;
+}
+
+/* Aviso pequeño que aparece cuando el estado fue cambiado pero no confirmado */
+.aviso-cambio-pendiente {
+    display: block;
+    font-size: 11px;
+    color: #8a6d3b;
+    font-weight: bold;
+    margin-top: 4px;
+}
+
+/* Etiqueta visual para prioridad */
+.badge-prioridad {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Prioridad baja */
+.prioridad-baja {
+    background-color: #d9edf7;
+    color: #31708f;
+}
+
+/* Prioridad media */
+.prioridad-media {
+    background-color: #fcf8e3;
+    color: #8a6d3b;
+}
+
+/* Prioridad alta */
+.prioridad-alta {
+    background-color: #f2dede;
+    color: #a94442;
+}
+
+/* Etiqueta visual para estado */
+.estado-badge {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Estado pendiente */
+.estado-pendiente {
+    background-color: #f2dede;
+    color: #a94442;
+}
+
+/* Estado en proceso */
+.estado-proceso {
+    background-color: #fcf8e3;
+    color: #8a6d3b;
+}
+
+/* Estado resuelto */
+.estado-resuelto {
+    background-color: #dff0d8;
+    color: #3c763d;
+}
+
+/* Texto pequeño de ayuda bajo prioridad */
+.campo-ayuda {
+    font-size: 12px;
+    color: #777;
+    margin-top: 4px;
+}
+
+/* Permite que la descripción respete saltos de línea en el modal */
+.descripcion-modal {
+    white-space: pre-line;
+}
+
+/* Mensaje pequeño para usuarios sin permisos */
+.texto-sin-permisos {
+    color: #777;
+    font-size: 12px;
+}
+
+/* Ajuste visual del botón X del modal */
+.modal-header .close {
+    font-size: 24px;
+    line-height: 1;
+    opacity: 0.6;
+}
+
+    /* Hace que el cierre del modal se vea más natural */
+    .modal-header .close:hover {
+        opacity: 1;
+    }
+
+/* ==========================================================
+   Contador de descripción
+   ========================================================== */
+
+
+/* Antes: el usuario solo veía el placeholder de mínimo 10 caracteres.
+   Ahora: aparece un contador que indica si ya cumple el mínimo. */
+.contador-descripcion {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Se usa cuando la descripción aún no llega a 10 caracteres */
+.contador-error {
+    color: #a94442;
+}
+
+/* Se usa cuando la descripción ya cumple el mínimo */
+.contador-ok {
+    color: #3c763d;
+}

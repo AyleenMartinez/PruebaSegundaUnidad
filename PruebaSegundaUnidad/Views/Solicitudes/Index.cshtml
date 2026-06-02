@@ -1,254 +1,226 @@
-﻿@{
-    ViewBag.Title = "Soporte Técnico (API)";
+﻿@using System.Collections.Generic
+@model PruebaSegundaUnidad.Models.SolicitudSoporte
+
+@{
+    // Título de la vista.
+    ViewBag.Title = "Solicitudes de Soporte";
+
+    // Áreas enviadas desde SolicitudesController.
+    var areas = ViewBag.Areas as List<PruebaSegundaUnidad.Models.AreaSolicitante>;
+
+    // Tipos de problema enviados desde SolicitudesController.
+    var tiposProblema = ViewBag.TiposProblema as List<PruebaSegundaUnidad.Models.TipoProblema>;
 }
+
+@* Antes: el CSS estaba dentro de la vista.
+    Ahora: el diseño queda separado en Content/solicitudes.css. *@
+<link href="@Url.Content("~/Content/solicitudes.css")" rel="stylesheet" />
+
+@* Antes: el JavaScript usaba Session directamente dentro del .cshtml.
+    Ahora: estos datos quedan ocultos en la vista para que el archivo JS externo pueda leerlos. *@
+<input type="hidden" id="UsuarioActualId" value="@Session["UsuarioId"]" />
+<input type="hidden" id="RolUsuario" value="@Session["Rol"]" />
 
 <div class="row">
     <div class="col-md-12">
-        <h2 class="page-header"><i class="fa fa-ticket-alt"></i> Gestión de Soporte Técnico</h2>
 
-        <!-- Contenedor dinámico para mostrar las alertas de éxito/error de la API -->
+        <h2>Gestión de Soporte Técnico</h2>
+
+        <p class="text-muted">
+            Este módulo usa Razor para la vista y API RESTful para registrar, listar, actualizar y eliminar solicitudes.
+        </p>
+
+        @* Aquí JavaScript muestra mensajes de éxito o error *@
         <div id="alertasContainer"></div>
+
     </div>
 </div>
 
 <div class="row">
-    <!-- ======================================================= -->
-    <!-- FORMULARIO DE REGISTRO (POST vía API) -->
-    <!-- ======================================================= -->
+
+    @* Formulario para crear una nueva solicitud *@
     <div class="col-md-4">
+
         <div class="panel panel-default panel-soporte">
             <div class="panel-heading">
-                <h3 class="panel-title"><i class="fa fa-plus-circle"></i> Nueva Solicitud</h3>
+                Nueva solicitud
             </div>
+
             <div class="panel-body">
-                <!-- IMPORTANTE: El form no tiene action ni method porque se envía por JS -->
+
+                @* Antes: un formulario normal recargaba la página.
+                    Ahora: se envía con fetch a la API desde Scripts/app/solicitudes.js. *@
                 <form id="frmNuevaSolicitud">
 
                     <div class="form-group">
                         <label>Solicitante</label>
-                        <input type="text" class="form-control" value="@Session["NombreCompleto"]" readonly>
+                        <input type="text" class="form-control" value="@Session["NombreCompleto"]" readonly />
                     </div>
 
                     <div class="form-group">
                         <label>Área <span class="text-danger">*</span></label>
+
                         <select class="form-control" id="IdArea" required>
-                            <option value="">-- Seleccione Área --</option>
-                            @foreach (var area in ViewBag.Areas)
+                            <option value="">-- Seleccione área --</option>
+
+                            @* Antes: las áreas podían quedar escritas a mano.
+                                Ahora: vienen desde la base mediante ViewBag.Areas. *@
+                            @if (areas != null)
                             {
-                                <option value="@area.Id">@area.NombreArea</option>
+                                foreach (var area in areas)
+                                {
+                                    <option value="@area.Id">@area.NombreArea</option>
+                                }
                             }
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label>Tipo de Problema <span class="text-danger">*</span></label>
+                        <label>Tipo de problema <span class="text-danger">*</span></label>
+
                         <select class="form-control" id="IdTipoProblema" required>
-                            <option value="">-- Seleccione Problema --</option>
-                            @foreach (var tipo in (List<PruebaSegundaUnidad.Models.TipoProblema>)ViewBag.TiposProblema)
+                            <option value="">-- Seleccione problema --</option>
+
+                            @* Antes: los tipos podían quedar fijos.
+                                Ahora: vienen desde ViewBag.TiposProblema. *@
+                            @if (tiposProblema != null)
                             {
-                                <option value="@tipo.Id">@tipo.NombreTipoProblema</option>
+                                foreach (var tipo in tiposProblema)
+                                {
+                                    <option value="@tipo.Id">@tipo.NombreTipoProblema</option>
+                                }
                             }
                         </select>
-                    </div>
                     </div>
 
                     <div class="form-group">
                         <label>Prioridad <span class="text-danger">*</span></label>
+
                         <select class="form-control" id="IdPrioridad" required>
-                            <!-- Los values corresponden a los IDs de la tabla Prioridades en BD -->
                             <option value="1">Baja</option>
                             <option value="2" selected>Media</option>
                             <option value="3">Alta</option>
                         </select>
+
+                        <div class="campo-ayuda">
+                            Baja: menos urgente | Media: normal | Alta: requiere atención rápida
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label>Descripción <span class="text-danger">*</span></label>
-                        <textarea class="form-control" id="Descripcion" rows="4" minlength="10" required placeholder="Mínimo 10 caracteres..."></textarea>
+
+                        @* Antes: solo se indicaba el mínimo en el placeholder.
+                            Ahora: también hay un contador visible de caracteres. *@
+                        <textarea class="form-control"
+                                  id="Descripcion"
+                                  rows="4"
+                                  minlength="10"
+                                  required
+                                  placeholder="Describe el problema con al menos 10 caracteres"></textarea>
+
+                        <span id="contadorDescripcion" class="contador-descripcion contador-error">
+                            0/10 caracteres mínimos
+                        </span>
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-block">
-                        <i class="fa fa-paper-plane"></i> Enviar Solicitud
+                    <button type="submit" class="btn btn-success btn-block">
+                        Guardar solicitud
                     </button>
+
                 </form>
+
             </div>
         </div>
+
     </div>
 
-    <!-- ======================================================= -->
-    <!-- TABLA DE HISTORIAL (GET, PUT, DELETE vía API) -->
-    <!-- ======================================================= -->
+    @* Tabla donde se carga el historial desde la API *@
     <div class="col-md-8">
+
         <div class="panel panel-default panel-soporte">
             <div class="panel-heading">
-                <h3 class="panel-title"><i class="fa fa-list"></i> Historial de Requerimientos</h3>
+                Historial de solicitudes
             </div>
+
             <div class="panel-body">
+
                 <div class="table-responsive">
-                    <table class="table table-striped table-hover" id="tablaSolicitudes">
+
+                    <table class="table table-striped table-hover tabla-solicitudes" id="tablaSolicitudes">
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>Fecha</th>
+                                <th class="columna-fecha">Fecha</th>
                                 <th>Usuario</th>
                                 <th>Problema</th>
                                 <th>Prioridad</th>
                                 <th>Estado</th>
-                                <th>Acciones</th>
+                                <th class="columna-acciones">Acciones</th>
                             </tr>
                         </thead>
+
                         <tbody>
-                            <!-- Las filas se inyectarán aquí mediante JavaScript -->
+                            @* Scripts/app/solicitudes.js inserta aquí las solicitudes *@
                         </tbody>
                     </table>
+
                 </div>
+
             </div>
+        </div>
+
+    </div>
+
+</div>
+
+@* Antes: el detalle se mostraba con alert().
+    Ahora: se usa un modal Bootstrap para que se vea más claro. *@
+<div class="modal fade" id="modalDetalleSolicitud" tabindex="-1" role="dialog" aria-labelledby="tituloModalDetalle">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                @* Antes: la X dependía solo de data-dismiss y no estaba funcionando bien.
+                    Ahora: llama directamente a cerrarModalDetalle(), que está en solicitudes.js. *@
+                <button type="button" class="close" onclick="cerrarModalDetalle()" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+
+                <h4 class="modal-title" id="tituloModalDetalle">Detalle de la solicitud</h4>
+            </div>
+
+            <div class="modal-body">
+                <p><strong>ID:</strong> <span id="detalleId"></span></p>
+                <p><strong>Solicitante:</strong> <span id="detalleUsuario"></span></p>
+                <p><strong>Área:</strong> <span id="detalleArea"></span></p>
+                <p><strong>Problema:</strong> <span id="detalleProblema"></span></p>
+                <p><strong>Prioridad:</strong> <span id="detallePrioridad"></span></p>
+                <p><strong>Estado:</strong> <span id="detalleEstado"></span></p>
+
+                <hr />
+
+                <p><strong>Descripción:</strong></p>
+                <div id="detalleDescripcion" class="descripcion-modal"></div>
+            </div>
+
+            <div class="modal-footer">
+
+                @* Antes: este botón usaba data-dismiss y tampoco cerraba.
+                    Ahora: llama directo a cerrarModalDetalle(). *@
+                <button type="button" class="btn btn-default" onclick="cerrarModalDetalle()">
+                    Cerrar
+                </button>
+
+            </div>
+
         </div>
     </div>
 </div>
 
 @section Scripts {
-    <script>
-        // Variables de sesión inyectadas desde Razor para usarlas en JS
-        const usuarioActualId = @Session["UsuarioId"];
-        const rolUsuario = '@Session["Rol"]';
-
-        document.addEventListener("DOMContentLoaded", function () {
-            cargarSolicitudes();
-
-            // Interceptar el envío del formulario
-            document.getElementById('frmNuevaSolicitud').addEventListener('submit', function (e) {
-                e.preventDefault();
-                crearSolicitud();
-            });
-        });
-
-        // -------------------------------------------------------------
-        // FUNCIÓN UTILIDAD: Mostrar Alertas Bootstrap dinámicas
-        // -------------------------------------------------------------
-        function mostrarAlerta(mensaje, tipo) {
-            const container = document.getElementById('alertasContainer');
-            container.innerHTML = `
-                <div class="alert alert-${tipo} alert-dismissible" role="alert">
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    ${mensaje}
-                </div>`;
-
-            // Ocultar la alerta automáticamente después de 4 segundos
-            setTimeout(() => container.innerHTML = '', 4000);
-        }
-
-        // -------------------------------------------------------------
-        // ENDPOINT GET: Listar todas las solicitudes
-        // -------------------------------------------------------------
-        function cargarSolicitudes() {
-            fetch('/api/solicitudes')
-                .then(response => response.json())
-                .then(data => {
-                    const tbody = document.querySelector('#tablaSolicitudes tbody');
-                    tbody.innerHTML = '';
-
-                    data.forEach(sol => {
-                        // Formatear Fecha
-                        const fechaObj = new Date(sol.FechaRegistro);
-                        const fechaFmt = fechaObj.toLocaleDateString('es-CL');
-
-                        // Configurar colores de estado (Fase 5: Estilos distintos)
-                        let badgeEstado = '';
-                        if (sol.IdEstado === 1) badgeEstado = '<span class="label label-danger">Pendiente</span>';
-                        else if (sol.IdEstado === 2) badgeEstado = '<span class="label label-warning">En Proceso</span>';
-                        else badgeEstado = '<span class="label label-success">Resuelto</span>';
-
-                        // Construcción de los botones de acción según el Rol
-                        let botones = `<button class="btn btn-default btn-xs" onclick="alert('Descripción:\\n\\n${sol.Descripcion}')" title="Ver Detalles"><i class="fa fa-eye"></i></button> `;
-
-                        // Si es Administrador o Soporte, pueden cambiar estado o eliminar
-                        if (rolUsuario === "Administrador" || rolUsuario === "Soporte") {
-                            botones += `
-                                <button class="btn btn-primary btn-xs" onclick="actualizarEstado(${sol.Id}, 2)" title="Marcar En Proceso"><i class="fa fa-spinner"></i></button>
-                                <button class="btn btn-success btn-xs" onclick="actualizarEstado(${sol.Id}, 3)" title="Marcar Resuelto"><i class="fa fa-check"></i></button>
-                                <button class="btn btn-danger btn-xs" onclick="eliminarSolicitud(${sol.Id})" title="Eliminar"><i class="fa fa-trash"></i></button>
-                            `;
-                        }
-
-                        // Inyectar fila HTML
-                        tbody.innerHTML += `
-                            <tr>
-                                <td>#${sol.Id}</td>
-                                <td>${fechaFmt}</td>
-                                <td>${sol.NombreUsuario}</td>
-                                <td>${sol.DescripcionProblema}</td>
-                                <td>${sol.NivelPrioridad}</td>
-                                <td>${badgeEstado}</td>
-                                <td>${botones}</td>
-                            </tr>
-                        `;
-                    });
-                })
-                .catch(err => console.error("Error al cargar solicitudes:", err));
-        }
-
-        // -------------------------------------------------------------
-        // ENDPOINT POST: Crear nueva solicitud
-        // -------------------------------------------------------------
-        function crearSolicitud() {
-            const nuevaSolicitud = {
-                UsuarioId: usuarioActualId,
-                IdArea: document.getElementById('IdArea').value,
-                IdTipoProblema: document.getElementById('IdTipoProblema').value,
-                IdPrioridad: document.getElementById('IdPrioridad').value,
-                Descripcion: document.getElementById('Descripcion').value
-            };
-
-            fetch('/api/solicitudes', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(nuevaSolicitud)
-            })
-            .then(response => {
-                if (response.ok) {
-                    mostrarAlerta('La solicitud fue registrada exitosamente.', 'success');
-                    document.getElementById('frmNuevaSolicitud').reset();
-                    cargarSolicitudes(); // Recargar la tabla
-                } else {
-                    mostrarAlerta('Error al registrar la solicitud. Revisa los datos.', 'danger');
-                }
-            })
-            .catch(err => console.error(err));
-        }
-
-        // -------------------------------------------------------------
-        // ENDPOINT PUT: Cambiar estado
-        // -------------------------------------------------------------
-        function actualizarEstado(id, nuevoEstadoId) {
-            fetch(`/api/solicitudes/${id}/estado`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ IdEstado: nuevoEstadoId })
-            })
-            .then(response => {
-                if (response.ok) {
-                    mostrarAlerta('Estado de la solicitud actualizado.', 'info');
-                    cargarSolicitudes(); // Recargar la tabla
-                }
-            });
-        }
-
-        // -------------------------------------------------------------
-        // ENDPOINT DELETE: Eliminar solicitud
-        // -------------------------------------------------------------
-        function eliminarSolicitud(id) {
-            if (confirm('¿Estás seguro de que deseas eliminar permanentemente esta solicitud?')) {
-                fetch(`/api/solicitudes/${id}`, {
-                    method: 'DELETE'
-                })
-                .then(response => {
-                    if (response.ok) {
-                        mostrarAlerta('Solicitud eliminada del sistema.', 'warning');
-                        cargarSolicitudes(); // Recargar la tabla
-                    }
-                });
-            }
-        }
-    </script>
+    @* Antes: el JS propio estaba directo en Scripts o dentro de esta vista.
+        Ahora: se carga desde Scripts/app para separar código propio de librerías externas. *@
+    <script src="@Url.Content("~/Scripts/app/solicitudes.js")"></script>
 }

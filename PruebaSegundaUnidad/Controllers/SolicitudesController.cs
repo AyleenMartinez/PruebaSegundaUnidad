@@ -3,32 +3,39 @@ using PruebaSegundaUnidad.Repositories;
 
 namespace PruebaSegundaUnidad.Controllers
 {
-    /// Controlador MVC exclusivo para renderizar la interfaz gráfica (Vistas Razor) 
-    /// del módulo de soporte. Todo el CRUD transaccional (Crear, Editar, Eliminar) 
-    /// lo manejará la API RESTful de forma asíncrona mediante JavaScript.
+    // Controlador MVC del módulo Solicitudes.
+    // Este controlador solo carga la vista Razor.
+    // El registro, listado, edición y eliminación se hacen en la API.
     public class SolicitudesController : Controller
     {
-        // Instancia del repositorio de lectura para obtener los datos de las tablas maestras.
+        // Repositorio usado para llenar los select del formulario.
         private readonly CatalogoRepository _catalogoRepo = new CatalogoRepository();
 
-        /// Petición GET: Carga la página principal (dashboard) de la gestión de solicitudes.
-        /// <returns>Vista HTML de la página de solicitudes o redirección al Login si no hay sesión activa.</returns>
+        #region Vista principal
+
         [HttpGet]
         public ActionResult Index()
         {
-            // Validación de seguridad: Impide el acceso a usuarios no autenticados por URL directa.
+            // Antes: si alguien escribía la URL directa, podía intentar entrar a la vista.
+            // Ahora: primero se revisa si existe sesión activa.
             if (Session["UsuarioId"] == null)
             {
+                // Si no hay sesión, se devuelve al login.
                 return RedirectToAction("Login", "Auth");
             }
 
-            // Pasamos los catálogos a la vista a través del diccionario ViewBag.
-            // Esto permite armar las opciones de los <select> en el formulario de registro 
-            // de manera dinámica justo en el momento en que se procesa la vista Razor.
+            // Antes: los select podían quedar fijos o escritos manualmente en la vista.
+            // Ahora: las áreas se cargan desde la base usando CatalogoRepository.
             ViewBag.Areas = _catalogoRepo.ObtenerAreas();
+
+            // Antes: los tipos de problema también podían quedar escritos a mano.
+            // Ahora: se cargan desde la base para mantenerlos dinámicos.
             ViewBag.TiposProblema = _catalogoRepo.ObtenerTiposProblema();
 
+            // Muestra la vista Views/Solicitudes/Index.cshtml.
             return View();
         }
+
+        #endregion
     }
 }
