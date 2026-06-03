@@ -4,28 +4,22 @@
    ========================================================== */
 
 
-/* Antes: todo este JavaScript estaba dentro de Views/Solicitudes/Index.cshtml.
-   Ahora: queda separado en Scripts/app/solicitudes.js para ordenar mejor el proyecto. */
-
-
 // Lista temporal con solicitudes cargadas desde la API.
 let solicitudesCargadas = [];
 
 // Id del usuario conectado.
-// Antes: venía directo desde Razor dentro del script.
-// Ahora: se lee desde un input hidden creado en Index.cshtml.
+// Se lee desde el input hidden UsuarioActualId de la vista.
 let usuarioActualId = 0;
 
 // Rol del usuario conectado.
-// Antes: venía directo desde Session dentro del script.
-// Ahora: se lee desde un input hidden para que este archivo JS sea externo.
+// Se lee desde el input hidden RolUsuario de la vista.
 let rolUsuario = "";
 
 
 // Cuando la página termina de cargar, se inicia el módulo.
 document.addEventListener("DOMContentLoaded", function () {
 
-    // Se leen los datos de sesión que quedaron en inputs ocultos.
+    // Se leen los datos de sesión que quedaron disponibles en la vista.
     usuarioActualId = parseInt(document.getElementById("UsuarioActualId").value);
     rolUsuario = document.getElementById("RolUsuario").value;
 
@@ -38,15 +32,13 @@ document.addEventListener("DOMContentLoaded", function () {
     // Campo de descripción usado para contar caracteres.
     const campoDescripcion = document.getElementById("Descripcion");
 
-    // Antes: el formulario podía recargar la página.
-    // Ahora: se detiene el submit y se manda por API.
+    // Se evita que el formulario recargue la página y se envía por API.
     formulario.addEventListener("submit", function (e) {
         e.preventDefault();
         crearSolicitud();
     });
 
-    // Antes: el usuario recién sabía del mínimo al intentar guardar.
-    // Ahora: el contador se actualiza mientras escribe.
+    // El contador se actualiza mientras el usuario escribe.
     campoDescripcion.addEventListener("input", function () {
         actualizarContadorDescripcion();
     });
@@ -54,6 +46,27 @@ document.addEventListener("DOMContentLoaded", function () {
     // Deja el contador inicializado al cargar la página.
     actualizarContadorDescripcion();
 });
+
+
+// Revisa si el usuario conectado puede administrar solicitudes.
+function puedeGestionarSolicitudes() {
+    return rolUsuario === "Administrador" || rolUsuario === "Soporte";
+}
+
+
+// Filtra las solicitudes según el rol del usuario conectado.
+function filtrarSolicitudesSegunRol(lista) {
+
+    // Administrador y Soporte ven todas las solicitudes.
+    if (puedeGestionarSolicitudes()) {
+        return lista;
+    }
+
+    // Usuario normal solo ve las solicitudes creadas por su propio Id.
+    return lista.filter(function (solicitud) {
+        return parseInt(solicitud.UsuarioId) === usuarioActualId;
+    });
+}
 
 
 // Muestra mensajes Bootstrap arriba del formulario.
@@ -128,31 +141,34 @@ function cargarSolicitudes() {
             return response.json();
         })
         .then(function (data) {
-            solicitudesCargadas = data;
+
+            // Se filtra la lista según el rol antes de mostrarla.
+            // Usuario normal ve solo sus solicitudes.
+            // Administrador y Soporte ven todas.
+            const solicitudesFiltradas = filtrarSolicitudesSegunRol(data);
+
+            // Se guarda la lista filtrada para que el modal solo pueda abrir lo visible para ese usuario.
+            solicitudesCargadas = solicitudesFiltradas;
 
             const tbody = document.querySelector("#tablaSolicitudes tbody");
             tbody.innerHTML = "";
 
-            // Antes: si no había solicitudes, la tabla quedaba vacía.
-            // Ahora: se muestra una fila informativa.
-            if (data.length === 0) {
+            if (solicitudesFiltradas.length === 0) {
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="7" class="text-center text-muted">
-                            No hay solicitudes registradas.
+                            No hay solicitudes registradas para este usuario.
                         </td>
                     </tr>
                 `;
                 return;
             }
 
-            data.forEach(function (sol) {
+            solicitudesFiltradas.forEach(function (sol) {
                 const fecha = new Date(sol.FechaRegistro).toLocaleDateString("es-CL");
                 const badgePrioridad = obtenerBadgePrioridad(sol.NivelPrioridad);
                 const badgeEstado = obtenerBadgeEstado(sol.IdEstado, sol.NombreEstado);
 
-                // Antes: los botones ocupaban mucho alto y se separaban en bloques.
-                // Ahora: acciones compactas: Ver, select de estado, Actualizar y Eliminar.
                 let botones = `
                     <div class="acciones-compactas">
 
@@ -161,7 +177,7 @@ function cargarSolicitudes() {
                         </button>
                 `;
 
-                if (rolUsuario === "Administrador" || rolUsuario === "Soporte") {
+                if (puedeGestionarSolicitudes()) {
                     botones += `
                         <select id="estado-${sol.Id}"
                                 class="form-control input-sm select-estado"
@@ -192,9 +208,9 @@ function cargarSolicitudes() {
                     `;
                 }
                 else {
-                    botones += `
-                        <span class="texto-sin-permisos">Solo lectura</span>
-                    `;
+                    // Usuario normal solo puede ver el detalle.
+                    // No se agregan botones de actualizar ni eliminar.
+                    botones += ``;
                 }
 
                 botones += `</div>`;
@@ -240,8 +256,7 @@ function verDetalle(id) {
 }
 
 
-// Antes: el modal se abría solo con jQuery/Bootstrap.
-// Ahora: se intenta abrir con Bootstrap moderno y, si no existe, con jQuery.
+// Abre el modal de detalle.
 function abrirModalDetalle() {
     const modalElemento = document.getElementById("modalDetalleSolicitud");
 
@@ -255,8 +270,7 @@ function abrirModalDetalle() {
 }
 
 
-// Antes: la X y el botón Cerrar dependían solo de data-dismiss.
-// Ahora: esta función fuerza el cierre del modal con Bootstrap moderno o jQuery.
+// Cierra el modal de detalle.
 function cerrarModalDetalle() {
     const modalElemento = document.getElementById("modalDetalleSolicitud");
 
@@ -270,8 +284,7 @@ function cerrarModalDetalle() {
 }
 
 
-// Antes: no había una guía visual clara para saber si la descripción cumplía el mínimo.
-// Ahora: se muestra cuántos caracteres lleva y cambia de color al cumplir los 10.
+// Actualiza el contador de caracteres de la descripción.
 function actualizarContadorDescripcion() {
     const descripcion = document.getElementById("Descripcion").value.trim();
     const contador = document.getElementById("contadorDescripcion");
@@ -296,7 +309,6 @@ function actualizarContadorDescripcion() {
 function crearSolicitud() {
     const descripcion = document.getElementById("Descripcion").value.trim();
 
-    // Se actualiza el contador justo antes de validar.
     actualizarContadorDescripcion();
 
     if (descripcion.length < 10) {
@@ -326,7 +338,6 @@ function crearSolicitud() {
 
             document.getElementById("frmNuevaSolicitud").reset();
 
-            // Después de limpiar el formulario, vuelve el contador a 0/10.
             actualizarContadorDescripcion();
 
             mostrarAlerta("Solicitud registrada correctamente.", "success");
@@ -338,8 +349,7 @@ function crearSolicitud() {
 }
 
 
-// Antes: si cambiabas el select, visualmente quedaba igual.
-// Ahora: si el valor cambió y aún no se actualiza, se marca como "Cambio sin guardar".
+// Marca visualmente un cambio de estado no confirmado.
 function marcarCambioEstado(id) {
     const selectEstado = document.getElementById("estado-" + id);
     const fila = document.getElementById("fila-solicitud-" + id);
@@ -364,8 +374,7 @@ function marcarCambioEstado(id) {
 }
 
 
-// Antes: se recibía también el estado actual desde el botón.
-// Ahora: el estado original se lee desde el data-estado-original del select.
+// Toma el estado seleccionado y lo envía a actualizar.
 function guardarEstadoDesdeSelect(id) {
     const selectEstado = document.getElementById("estado-" + id);
 
@@ -399,7 +408,6 @@ function actualizarEstado(id, nuevoEstadoId) {
 
             mostrarAlerta("Estado actualizado correctamente.", "info");
 
-            // Al recargar la tabla, el estado confirmado pasa a ser el nuevo original.
             cargarSolicitudes();
         })
         .catch(function () {

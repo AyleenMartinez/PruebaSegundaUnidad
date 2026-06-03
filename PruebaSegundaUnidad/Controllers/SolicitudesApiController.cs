@@ -5,12 +5,11 @@ using PruebaSegundaUnidad.Repositories;
 namespace PruebaSegundaUnidad.Controllers
 {
     // API RESTful del módulo Solicitudes.
-    // Aquí van las acciones GET, POST, PUT y DELETE.
-    // Esta API se usa solo para solicitudes de soporte, no para login ni perfil.
+    // Gestiona listar, buscar, crear, actualizar estado y eliminar solicitudes.
     [RoutePrefix("api/solicitudes")]
     public class SolicitudesApiController : ApiController
     {
-        // Repositorio que se comunica con la base de datos.
+        // Repositorio que contiene las consultas SQL de solicitudes.
         private readonly SolicitudRepository _repo = new SolicitudRepository();
 
         #region GET: listar solicitudes
@@ -19,11 +18,10 @@ namespace PruebaSegundaUnidad.Controllers
         [Route("")]
         public IHttpActionResult ObtenerTodas()
         {
-            // Antes: la vista podía necesitar datos cargados manualmente.
-            // Ahora: la API entrega todas las solicitudes en formato JSON.
+            // Obtiene todas las solicitudes desde la base de datos.
             var solicitudes = _repo.ObtenerTodas();
 
-            // Devuelve la lista como JSON.
+            // Devuelve la lista en formato JSON.
             return Ok(solicitudes);
         }
 
@@ -38,14 +36,13 @@ namespace PruebaSegundaUnidad.Controllers
             // Busca una solicitud específica por su Id.
             var solicitud = _repo.ObtenerPorId(id);
 
-            // Antes: si no existía el Id, podía no quedar claro qué pasó.
-            // Ahora: si no existe, la API responde 404 NotFound.
+            // Si no existe, devuelve error 404.
             if (solicitud == null)
             {
                 return NotFound();
             }
 
-            // Si existe, devuelve la solicitud como JSON.
+            // Devuelve la solicitud encontrada en formato JSON.
             return Ok(solicitud);
         }
 
@@ -57,31 +54,28 @@ namespace PruebaSegundaUnidad.Controllers
         [Route("")]
         public IHttpActionResult Crear(SolicitudSoporte solicitud)
         {
-            // Antes: se asumía que el JSON llegaba bien desde JavaScript.
-            // Ahora: primero se revisa si llegó vacío para evitar errores raros.
+            // Revisa que JavaScript haya enviado datos.
             if (solicitud == null)
             {
                 return BadRequest("No se recibieron datos de la solicitud.");
             }
 
-            // Antes: se podía intentar guardar aunque faltaran datos.
-            // Ahora: se revisan las validaciones del modelo antes de insertar.
+            // Revisa las validaciones del modelo.
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            // Antes: Insertar podía ser void y la API no sabía si realmente guardó.
-            // Ahora: Insertar devuelve true o false según si se insertó una fila.
+            // Inserta la solicitud en la base de datos.
             bool creada = _repo.Insertar(solicitud);
 
-            // Si no se insertó ninguna fila, se informa error.
+            // Si no se pudo guardar, devuelve error.
             if (!creada)
             {
                 return BadRequest("No se pudo registrar la solicitud.");
             }
 
-            // Mensaje que puede leer el JavaScript.
+            // Devuelve mensaje de éxito para JavaScript.
             return Ok(new { mensaje = "Solicitud creada exitosamente." });
         }
 
@@ -93,15 +87,13 @@ namespace PruebaSegundaUnidad.Controllers
         [Route("{id:int}/estado")]
         public IHttpActionResult ActualizarEstado(int id, [FromBody] ActualizarEstadoRequest request)
         {
-            // Antes: se asumía que el cuerpo del PUT venía con datos.
-            // Ahora: si el JSON viene vacío, se devuelve error claro.
+            // Revisa que el cuerpo de la petición tenga datos.
             if (request == null)
             {
                 return BadRequest("No se recibió el nuevo estado.");
             }
 
-            // Antes: podía llegar cualquier número de estado.
-            // Ahora: el modelo valida que el estado sea válido.
+            // Revisa las validaciones del modelo.
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -110,14 +102,13 @@ namespace PruebaSegundaUnidad.Controllers
             // Actualiza solo el estado de la solicitud.
             bool actualizado = _repo.ActualizarEstado(id, request.IdEstado);
 
-            // Antes: si el Id no existía, podía parecer que no pasaba nada.
-            // Ahora: si no encontró la solicitud, devuelve 404.
+            // Si no encontró la solicitud, devuelve error 404.
             if (!actualizado)
             {
                 return NotFound();
             }
 
-            // Mensaje que puede leer el JavaScript.
+            // Devuelve mensaje de éxito para JavaScript.
             return Ok(new { mensaje = "Estado actualizado correctamente." });
         }
 
@@ -132,14 +123,13 @@ namespace PruebaSegundaUnidad.Controllers
             // Elimina la solicitud según el Id recibido.
             bool eliminado = _repo.Eliminar(id);
 
-            // Antes: si el Id no existía, no siempre quedaba claro.
-            // Ahora: si no eliminó nada, responde 404.
+            // Si no encontró la solicitud, devuelve error 404.
             if (!eliminado)
             {
                 return NotFound();
             }
 
-            // Mensaje que puede leer el JavaScript.
+            // Devuelve mensaje de éxito para JavaScript.
             return Ok(new { mensaje = "Solicitud eliminada correctamente." });
         }
 

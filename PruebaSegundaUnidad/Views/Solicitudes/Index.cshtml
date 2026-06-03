@@ -216,7 +216,6 @@
 </div>
 
 @section Scripts {
-    @* Antes: el JS propio estaba directo en Scripts o dentro de esta vista.
-        Ahora: se carga desde Scripts/app para separar código propio de librerías externas. *@
-    <script src="@Url.Content("~/Scripts/app/solicitudes.js")"></script>
+    @* Se agrega versión para forzar al navegador a cargar el JS actualizado *@
+    <script src="@Url.Content("~/Scripts/app/solicitudes.js?v=3")"></script>
 }
