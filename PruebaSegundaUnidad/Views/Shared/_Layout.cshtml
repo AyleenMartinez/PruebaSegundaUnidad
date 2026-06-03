@@ -3,45 +3,168 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>@ViewBag.Title - TechHelpWeb</title>
+
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
 </head>
+
 <body>
-    <div class="navbar navbar-inverse navbar-fixed-top">
+    @{
+        /*
+            Antes: el botón "← Volver" aparecía en todas las vistas internas,
+            incluyendo el Dashboard Principal.
+
+            Ahora: se detecta si estamos en Home/Index.
+            Si estamos en Home/Index, no se muestra el botón Volver.
+        */
+        var controllerActual = ViewContext.RouteData.Values["controller"] != null
+            ? ViewContext.RouteData.Values["controller"].ToString()
+            : "";
+
+        var actionActual = ViewContext.RouteData.Values["action"] != null
+            ? ViewContext.RouteData.Values["action"].ToString()
+            : "";
+
+        var esDashboardPrincipal = controllerActual == "Home" && actionActual == "Index";
+    }
+
+    @*
+        Layout principal del sistema.
+        Todo lo que está aquí se repite en las vistas que usan este layout.
+    *@
+
+    <nav class="navbar navbar-expand-sm navbar-dark bg-dark mb-4">
         <div class="container">
-            <div class="navbar-header">
-                @Html.ActionLink("TechHelpWeb", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
-            </div>
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
+
+            @* Nombre del sistema *@
+            @Html.ActionLink("TechHelpWeb", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+
+            @* Botón responsive para pantallas pequeñas *@
+            <button class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#menuPrincipal"
+                    aria-controls="menuPrincipal"
+                    aria-expanded="false"
+                    aria-label="Mostrar menú">
+
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="menuPrincipal">
+
+                <ul class="navbar-nav me-auto mb-2 mb-sm-0">
+
                     @if (Session["UsuarioId"] != null)
                     {
-                        <li>@Html.ActionLink("Inicio", "Index", "Home")</li>
-                        <li>@Html.ActionLink("Solicitudes", "Index", "Solicitudes")</li>
-                        if (Session["Rol"]?.ToString() == "Administrador")
+                        @* Menú principal visible solo para usuarios con sesión activa *@
+                        <li class="nav-item">
+                            @Html.ActionLink("Inicio", "Index", "Home", null, new { @class = "nav-link" })
+                        </li>
+
+                        <li class="nav-item">
+                            @Html.ActionLink("Solicitudes", "Index", "Solicitudes", null, new { @class = "nav-link" })
+                        </li>
+
+                        <li class="nav-item">
+                            @Html.ActionLink("Mi Perfil", "Index", "Perfil", null, new { @class = "nav-link" })
+                        </li>
+
+                        @* Usuarios solo aparece si el usuario conectado es Administrador *@
+                        if (Session["Rol"] != null && Session["Rol"].ToString() == "Administrador")
                         {
-                            <li>@Html.ActionLink("Usuarios", "Index", "Usuarios")</li>
+                            <li class="nav-item">
+                                @Html.ActionLink("Usuarios", "Index", "Usuarios", null, new { @class = "nav-link" })
+                            </li>
                         }
                     }
+
                 </ul>
-                <ul class="nav navbar-nav navbar-right">
+
+                <ul class="navbar-nav ms-auto mb-2 mb-sm-0">
+
                     @if (Session["UsuarioId"] != null)
                     {
-                        <li>@Html.ActionLink("Perfil: " + Session["NombreCompleto"], "Index", "Perfil")</li>
-                        <li>@Html.ActionLink("Cerrar sesión", "Logout", "Auth")</li>
+                        @* Muestra nombre y rol del usuario conectado *@
+                        <li class="nav-item d-flex align-items-center me-3">
+                            <span class="navbar-text">
+                                @Session["NombreCompleto"]
+                                @if (Session["Rol"] != null)
+                                {
+                                    <span>(@Session["Rol"])</span>
+                                }
+                            </span>
+                        </li>
+
+                        @* Cierre de sesión general para todas las vistas internas *@
+                        <li class="nav-item">
+                            <a href="@Url.Action("Logout", "Auth")" class="btn btn-danger btn-sm">
+                                Cerrar sesión
+                            </a>
+                        </li>
                     }
+                    else
+                    {
+                        @* Si no hay sesión, solo se muestra acceso al login *@
+                        <li class="nav-item">
+                            @Html.ActionLink("Iniciar sesión", "Login", "Auth", null, new { @class = "nav-link" })
+                        </li>
+                    }
+
                 </ul>
+
             </div>
         </div>
-    </div>
+    </nav>
+
     <div class="container body-content">
+
+        @*
+            Antes: el botón "← Volver" aparecía también en el Dashboard Principal.
+            Ahora: aparece solo si hay sesión activa y NO estamos en Home/Index.
+        *@
+        @if (Session["UsuarioId"] != null && !esDashboardPrincipal)
+        {
+            <div style="margin-bottom: 15px;">
+                <button type="button" class="btn btn-default btn-sm" onclick="volverPaginaAnterior()">
+                    ← Volver
+                </button>
+            </div>
+        }
+
+        @* Aquí se carga el contenido específico de cada vista *@
         @RenderBody()
+
         <hr />
-        <footer><p>&copy; @DateTime.Now.Year - TechHelpWeb</p></footer>
+
+        <footer>
+            <p>&copy; @DateTime.Now.Year - TechHelpWeb</p>
+        </footer>
+
     </div>
+
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
+
+    <script>
+        // Antes: cada vista podía tener su propio botón para volver.
+        // Ahora: esta función general sirve para todas las vistas internas donde aparezca el botón.
+        function volverPaginaAnterior() {
+
+            // Si el navegador tiene historial, vuelve a la página anterior.
+            if (window.history.length > 1) {
+                window.history.back();
+            }
+
+            // Si no hay historial suficiente, vuelve al dashboard principal.
+            else {
+                window.location.href = '@Url.Action("Index", "Home")';
+            }
+        }
+    </script>
+
     @RenderSection("scripts", required: false)
 </body>
 </html>
