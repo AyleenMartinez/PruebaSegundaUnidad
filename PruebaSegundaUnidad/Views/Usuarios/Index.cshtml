@@ -1,32 +1,53 @@
 ﻿@model IEnumerable<PruebaSegundaUnidad.Models.Usuario>
+
 @{
+    // Título que se muestra en la pestaña del navegador.
     ViewBag.Title = "Gestión de Usuarios";
 }
 
+@* Antes: la vista dependía solo de estilos generales.
+    Ahora: carga un CSS propio para que la tabla y los botones no se corten. *@
+<link href="@Url.Content("~/Content/usuarios.css")" rel="stylesheet" />
+
 <div class="row">
     <div class="col-md-12">
-        <h2 class="page-header">
-            <i class="fa fa-users-cog"></i> Administración de Usuarios
-            <a href="@Url.Action("Crear", "Usuarios")" class="btn btn-success pull-right">
-                <i class="fa fa-plus"></i> Nuevo Usuario
+
+        @*
+            Antes: el botón Nuevo Usuario estaba dentro del h2 con pull-right.
+            Ahora: se separa en un encabezado flexible para que no se desordene en pantallas chicas.
+        *@
+        <div class="usuarios-header">
+            <h2>Administración de Usuarios</h2>
+
+            <a href="@Url.Action("Crear", "Usuarios")" class="btn btn-success usuarios-btn-nuevo">
+                Nuevo Usuario
             </a>
-        </h2>
+        </div>
+
     </div>
 </div>
 
-<div class="table-responsive">
-    <table class="table table-striped table-hover table-bordered">
-        <thead style="background-color: #0056b3; color: white;">
+@*
+    Antes: la tabla responsive existía, pero la tabla podía comprimirse mucho.
+    Ahora: este contenedor permite desplazamiento horizontal si no cabe completa.
+*@
+<div class="usuarios-tabla-contenedor">
+
+    <table class="table table-striped table-hover table-bordered usuarios-tabla">
+
+        <thead>
             <tr>
                 <th>Nombre</th>
                 <th>Correo</th>
                 <th>Rol</th>
                 <th>Estado</th>
                 <th>Creación</th>
-                <th class="text-center">Acciones</th>
+                <th class="text-center usuarios-columna-acciones">Acciones</th>
             </tr>
         </thead>
+
         <tbody>
+
             @* Verificamos que el modelo tenga datos antes de recorrerlo *@
             @if (Model != null && Model.Any())
             {
@@ -36,35 +57,59 @@
                         <td>@usuario.NombreCompleto</td>
                         <td>@usuario.Correo</td>
                         <td>@usuario.NombreRol</td>
+
                         <td>
+                            @*
+                                Antes: se usaban labels de Bootstrap.
+                                Ahora: usamos badges propios para mantener el diseño consistente.
+                            *@
                             @if (usuario.Estado)
                             {
-                                <span class="label label-success">Activo</span>
+                                <span class="usuarios-estado-activo">Activo</span>
                             }
                             else
                             {
-                                <span class="label label-danger">Inactivo</span>
+                                <span class="usuarios-estado-inactivo">Inactivo</span>
                             }
                         </td>
-                        <td>@usuario.FechaRegistro.ToString("dd/MM/yyyy")</td>
-                        <td class="text-center">
 
-                            <a href="@Url.Action("Editar", "Usuarios", new { id = usuario.Id })" class="btn btn-info btn-sm" title="Ver/Editar">
-                                <i class="fa fa-edit"></i>
-                            </a>
+                        <td>@usuario.FechaRegistro.ToString("dd-MM-yyyy")</td>
 
-                            @if (usuario.Estado)
-                            {
-                                <a href="@Url.Action("CambiarEstado", "Usuarios", new { id = usuario.Id })" class="btn btn-danger btn-sm" title="Desactivar" onclick="return confirm('¿Estás seguro de que deseas desactivar a este usuario?');">
-                                    <i class="fa fa-ban"></i>
+                        <td class="text-center usuarios-columna-acciones">
+
+                            @*
+                                Antes: los botones usaban solo íconos Font Awesome.
+                                Si Font Awesome no estaba cargado, se veían como botones casi vacíos.
+                                Ahora: los botones tienen texto claro.
+                            *@
+                            <div class="usuarios-acciones">
+
+                                <a href="@Url.Action("Editar", "Usuarios", new { id = usuario.Id })"
+                                   class="btn btn-info btn-sm usuarios-btn-accion"
+                                   title="Ver o editar usuario">
+                                    Editar
                                 </a>
-                            }
-                            else
-                            {
-                                <a href="@Url.Action("CambiarEstado", "Usuarios", new { id = usuario.Id })" class="btn btn-success btn-sm" title="Activar" onclick="return confirm('¿Estás seguro de que deseas reactivar a este usuario?');">
-                                    <i class="fa fa-check"></i>
-                                </a>
-                            }
+
+                                @if (usuario.Estado)
+                                {
+                                    <a href="@Url.Action("CambiarEstado", "Usuarios", new { id = usuario.Id })"
+                                       class="btn btn-danger btn-sm usuarios-btn-accion"
+                                       title="Desactivar usuario"
+                                       onclick="return confirm('¿Estás seguro de que deseas desactivar a este usuario?');">
+                                        Desactivar
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a href="@Url.Action("CambiarEstado", "Usuarios", new { id = usuario.Id })"
+                                       class="btn btn-success btn-sm usuarios-btn-accion"
+                                       title="Activar usuario"
+                                       onclick="return confirm('¿Estás seguro de que deseas reactivar a este usuario?');">
+                                        Activar
+                                    </a>
+                                }
+
+                            </div>
 
                         </td>
                     </tr>
@@ -73,9 +118,12 @@
             else
             {
                 <tr>
-                    <td colspan="6" class="text-center">No hay usuarios registrados en el sistema.</td>
+                    <td colspan="6" class="text-center">
+                        No hay usuarios registrados en el sistema.
+                    </td>
                 </tr>
             }
+
         </tbody>
     </table>
 </div>

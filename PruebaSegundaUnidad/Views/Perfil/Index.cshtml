@@ -5,116 +5,146 @@
     ViewBag.Title = "Mi Perfil";
 }
 
-<div class="row">
+<link href="@Url.Content("~/Content/perfil.css")" rel="stylesheet" />
+
+<div class="row perfil-contenedor">
 
     @* Contenedor principal centrado *@
-    <div class="col-md-6 col-md-offset-3">
+    <div class="col-md-7 col-md-offset-2">
 
         <h2>Mi Perfil</h2>
 
-        @*
-            Antes: aquí estaba el botón "Volver al panel".
-            Ahora: se eliminó porque el botón "← Volver" ya está en el _Layout
-            y aparece de forma general en todas las vistas internas.
-        *@
-
         @* Panel principal del perfil *@
-        <div class="panel panel-default">
-            <div class="panel-body">
+        <div class="perfil-card">
 
-                @* Datos básicos del usuario conectado *@
-                <p><strong>Nombre:</strong> @Model.NombreCompleto</p>
-                <p><strong>Correo:</strong> @Model.Correo</p>
+            @* ==========================================================
+                SECCIÓN 1: DATOS PERSONALES
+                ========================================================== *@
 
-                <hr />
+            <div class="perfil-seccion">
 
-                @* Mensaje que aparece si la contraseña se actualizó correctamente *@
-                @if (TempData["MensajeExito"] != null)
+                <h4>Datos personales</h4>
+
+                @* Antes: el perfil solo mostraba nombre y correo como texto.
+                    Ahora: permite editar y guardar esos datos desde MVC/Razor, sin API. *@
+                @using (Html.BeginForm("ActualizarDatos", "Perfil", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(m => m.UsuarioId)
+
+                    <div class="form-group perfil-form-group">
+                        <label>Nombre completo <span class="text-danger">*</span></label>
+
+                        @Html.TextBoxFor(m => m.NombreCompleto, new { @class = "form-control" })
+
+                        @Html.ValidationMessageFor(m => m.NombreCompleto, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="form-group perfil-form-group">
+                        <label>Correo <span class="text-danger">*</span></label>
+
+                        @Html.TextBoxFor(m => m.Correo, new { @class = "form-control", type = "email" })
+
+                        @Html.ValidationMessageFor(m => m.Correo, "", new { @class = "text-danger" })
+                    </div>
+
+                    if (TempData["MensajePerfil"] != null)
+                    {
+                        <div class="alert alert-success">
+                            @TempData["MensajePerfil"]
+                        </div>
+                    }
+                    <button type="submit" class="btn btn-success perfil-btn">
+                        Guardar datos
+                    </button>
+                }
+
+            </div>
+
+            <hr class="perfil-separador" />
+
+            @* ==========================================================
+                SECCIÓN 2: CAMBIO DE CONTRASEÑA
+                ========================================================== *@
+
+            <div class="perfil-seccion">
+
+                <h4>Cambio de contraseña</h4>
+
+                @if (TempData["MensajeClave"] != null)
                 {
                     <div class="alert alert-success">
-                        @TempData["MensajeExito"]
+                        @TempData["MensajeClave"]
                     </div>
                 }
 
-                @* Muestra errores generales del formulario *@
                 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
-                @* Formulario que envía los datos al método ActualizarClave del PerfilController *@
+                @* Antes: esta vista solo tenía el formulario de contraseña.
+                    Ahora: se mantiene, pero separado visualmente de datos personales. *@
                 @using (Html.BeginForm("ActualizarClave", "Perfil", FormMethod.Post))
                 {
-                    @* Token de seguridad para evitar envíos falsos *@
                     @Html.AntiForgeryToken()
 
-                    @* Id del usuario conectado *@
                     @Html.HiddenFor(m => m.UsuarioId)
 
-                    @* Campo contraseña actual *@
-                    <div class="form-group">
+                    @* Estos campos se envían ocultos para conservar datos básicos al validar contraseña. *@
+                    @Html.HiddenFor(m => m.NombreCompleto)
+                    @Html.HiddenFor(m => m.Correo)
+
+                    <div class="form-group perfil-form-group">
                         <label>Contraseña actual <span class="text-danger">*</span></label>
 
-                        <div class="input-group">
-                            @* Campo oculto como contraseña *@
+                        @* Antes: el botón Ver quedaba muy pegado al campo.
+                            Ahora: se usa un contenedor flexible con separación. *@
+                        <div class="perfil-input-password">
                             @Html.PasswordFor(m => m.ClaveActual, new { @class = "form-control", id = "ClaveActual" })
 
-                            @* Botón para mostrar u ocultar la contraseña *@
-                            <span class="input-group-btn">
-                                <button type="button" class="btn btn-default btn-ver-password" data-target="ClaveActual">
-                                    Ver
-                                </button>
-                            </span>
+                            <button type="button" class="btn btn-outline-secondary btn-ver-password" data-target="ClaveActual">
+                                Ver
+                            </button>
                         </div>
 
-                        @* Error específico de contraseña actual *@
                         @Html.ValidationMessageFor(m => m.ClaveActual, "", new { @class = "text-danger" })
                     </div>
 
-                    @* Campo nueva contraseña *@
-                    <div class="form-group">
+                    <div class="form-group perfil-form-group">
                         <label>Nueva contraseña <span class="text-danger">*</span></label>
 
-                        <div class="input-group">
-                            @* Campo conectado con NuevaClave del ViewModel *@
+                        <div class="perfil-input-password">
                             @Html.PasswordFor(m => m.NuevaClave, new { @class = "form-control", id = "NuevaClave" })
 
-                            @* Botón para mostrar u ocultar la nueva contraseña *@
-                            <span class="input-group-btn">
-                                <button type="button" class="btn btn-default btn-ver-password" data-target="NuevaClave">
-                                    Ver
-                                </button>
-                            </span>
+                            <button type="button" class="btn btn-outline-secondary btn-ver-password" data-target="NuevaClave">
+                                Ver
+                            </button>
                         </div>
 
-                        @* Error de campo obligatorio o largo mínimo *@
                         @Html.ValidationMessageFor(m => m.NuevaClave, "", new { @class = "text-danger" })
                     </div>
 
-                    @* Campo confirmar nueva contraseña *@
-                    <div class="form-group">
+                    <div class="form-group perfil-form-group">
                         <label>Confirmar nueva contraseña <span class="text-danger">*</span></label>
 
-                        <div class="input-group">
-                            @* Este campo se compara con NuevaClave desde el ViewModel *@
+                        <div class="perfil-input-password">
                             @Html.PasswordFor(m => m.ConfirmarClave, new { @class = "form-control", id = "ConfirmarClave" })
 
-                            @* Botón para mostrar u ocultar la confirmación *@
-                            <span class="input-group-btn">
-                                <button type="button" class="btn btn-default btn-ver-password" data-target="ConfirmarClave">
-                                    Ver
-                                </button>
-                            </span>
+                            <button type="button" class="btn btn-outline-secondary btn-ver-password" data-target="ConfirmarClave">
+                                Ver
+                            </button>
                         </div>
 
-                        @* Error si la confirmación no coincide *@
                         @Html.ValidationMessageFor(m => m.ConfirmarClave, "", new { @class = "text-danger" })
                     </div>
 
-                    @* Botón que envía el formulario *@
-                    <button type="submit" class="btn btn-primary">
+                    @* Antes: el botón quedaba pegado al último campo.
+                        Ahora: tiene margen superior y queda más respirado. *@
+                    <button type="submit" class="btn btn-primary perfil-btn">
                         Cambiar contraseña
                     </button>
                 }
 
             </div>
+
         </div>
 
     </div>
@@ -127,7 +157,6 @@
     // Se recorre cada botón encontrado.
     for (var i = 0; i < botonesPassword.length; i++) {
 
-        // Se agrega el evento click a cada botón.
         botonesPassword[i].addEventListener("click", function () {
 
             // Se obtiene el id del campo asociado a este botón.
@@ -136,7 +165,6 @@
             // Se busca el campo de contraseña.
             var campo = document.getElementById(idCampo);
 
-            // Si no encuentra el campo, se detiene.
             if (campo == null) {
                 return;
             }

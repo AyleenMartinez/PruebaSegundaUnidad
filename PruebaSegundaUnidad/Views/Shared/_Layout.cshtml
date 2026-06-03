@@ -13,11 +13,8 @@
 <body>
     @{
         /*
-            Antes: el botón "← Volver" aparecía en todas las vistas internas,
-            incluyendo el Dashboard Principal.
-
-            Ahora: se detecta si estamos en Home/Index.
-            Si estamos en Home/Index, no se muestra el botón Volver.
+            Se obtiene el controlador y la acción actual.
+            Esto sirve para saber en qué pantalla estamos.
         */
         var controllerActual = ViewContext.RouteData.Values["controller"] != null
             ? ViewContext.RouteData.Values["controller"].ToString()
@@ -27,7 +24,17 @@
             ? ViewContext.RouteData.Values["action"].ToString()
             : "";
 
+        /*
+            Antes: el botón "← Volver" aparecía también en el Dashboard Principal.
+            Ahora: se detecta Home/Index para ocultarlo ahí.
+        */
         var esDashboardPrincipal = controllerActual == "Home" && actionActual == "Index";
+
+        /*
+            Antes: el link "Iniciar sesión" aparecía incluso dentro del Login.
+            Ahora: se detecta Auth/Login para no mostrarlo cuando ya estamos en esa pantalla.
+        */
+        var esLogin = controllerActual == "Auth" && actionActual == "Login";
     }
 
     @*
@@ -91,6 +98,7 @@
                         <li class="nav-item d-flex align-items-center me-3">
                             <span class="navbar-text">
                                 @Session["NombreCompleto"]
+
                                 @if (Session["Rol"] != null)
                                 {
                                     <span>(@Session["Rol"])</span>
@@ -107,10 +115,16 @@
                     }
                     else
                     {
-                        @* Si no hay sesión, solo se muestra acceso al login *@
-                        <li class="nav-item">
-                            @Html.ActionLink("Iniciar sesión", "Login", "Auth", null, new { @class = "nav-link" })
-                        </li>
+                        @*
+                            Antes: "Iniciar sesión" aparecía incluso estando en /Auth/Login.
+                            Ahora: solo aparece si NO estamos ya en la pantalla de login.
+                        *@
+                        if (!esLogin)
+                        {
+                            <li class="nav-item">
+                                @Html.ActionLink("Iniciar sesión", "Login", "Auth", null, new { @class = "nav-link" })
+                            </li>
+                        }
                     }
 
                 </ul>
@@ -122,8 +136,8 @@
     <div class="container body-content">
 
         @*
-            Antes: el botón "← Volver" aparecía también en el Dashboard Principal.
-            Ahora: aparece solo si hay sesión activa y NO estamos en Home/Index.
+            El botón "← Volver" aparece solo si hay sesión activa
+            y no estamos en el Dashboard Principal.
         *@
         @if (Session["UsuarioId"] != null && !esDashboardPrincipal)
         {
@@ -149,8 +163,7 @@
     @Scripts.Render("~/bundles/bootstrap")
 
     <script>
-        // Antes: cada vista podía tener su propio botón para volver.
-        // Ahora: esta función general sirve para todas las vistas internas donde aparezca el botón.
+        // Función general para volver desde vistas internas.
         function volverPaginaAnterior() {
 
             // Si el navegador tiene historial, vuelve a la página anterior.

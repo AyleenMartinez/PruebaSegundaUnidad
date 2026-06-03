@@ -1,0 +1,105 @@
+﻿/* ==========================================================
+   usuarios.css
+   Estilos propios de la vista Gestión de Usuarios.
+   ========================================================== */
+
+
+/* Antes: la tabla podía comprimirse demasiado según la resolución.
+   Ahora: el contenedor permite scroll horizontal si la pantalla es pequeña. */
+.usuarios-tabla-contenedor {
+    overflow-x: auto;
+}
+
+
+/* Antes: la tabla se achicaba y la columna Acciones se cortaba.
+   Ahora: mantiene un ancho mínimo para conservar legibilidad. */
+.usuarios-tabla {
+    min-width: 900px;
+}
+
+
+    /* Encabezado de la tabla */
+    .usuarios-tabla thead {
+        background-color: #0056b3;
+        color: #fff;
+    }
+
+
+    /* Antes: los textos podían quedar desalineados verticalmente.
+   Ahora: todas las celdas quedan centradas verticalmente. */
+    .usuarios-tabla th,
+    .usuarios-tabla td {
+        vertical-align: middle !important;
+    }
+
+
+/* Columna de acciones con espacio suficiente */
+.usuarios-columna-acciones {
+    width: 210px;
+    min-width: 210px;
+}
+
+
+/* Contenedor de botones de acción */
+.usuarios-acciones {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+
+/* Antes: los botones dependían de íconos y podían verse como puntitos.
+   Ahora: los botones tienen texto y ancho mínimo. */
+.usuarios-btn-accion {
+    min-width: 85px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+
+/* Botón superior Nuevo Usuario */
+.usuarios-btn-nuevo {
+    margin-left: 10px;
+}
+
+
+/* Encabezado de la página */
+.usuarios-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+
+    /* Título de la vista */
+    .usuarios-header h2 {
+        margin: 0;
+    }
+
+
+/* Estado activo */
+.usuarios-estado-activo {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 12px;
+    background-color: #dff0d8;
+    color: #3c763d;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+
+/* Estado inactivo */
+.usuarios-estado-inactivo {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 12px;
+    background-color: #f2dede;
+    color: #a94442;
+    font-weight: bold;
+    font-size: 12px;
+}

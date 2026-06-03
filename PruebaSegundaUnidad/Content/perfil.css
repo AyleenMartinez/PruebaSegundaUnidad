@@ -1,0 +1,67 @@
+﻿/* ==========================================================
+   perfil.css
+   Estilos propios de la vista Mi Perfil.
+   ========================================================== */
+
+
+/* Antes: la vista funcionaba, pero los botones y campos quedaban muy juntos.
+   Ahora: se agregan espacios para que el formulario se vea más ordenado. */
+
+.perfil-contenedor {
+    margin-top: 10px;
+}
+
+/* Tarjeta principal del perfil */
+.perfil-card {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    background-color: #fff;
+}
+
+/* Secciones internas: datos personales y contraseña */
+.perfil-seccion {
+    margin-bottom: 25px;
+}
+
+    /* Títulos de cada sección */
+    .perfil-seccion h4 {
+        margin-bottom: 18px;
+        font-weight: bold;
+    }
+
+/* Antes: los form-group quedaban demasiado pegados.
+   Ahora: cada campo tiene más espacio inferior. */
+.perfil-form-group {
+    margin-bottom: 16px;
+}
+
+/* Botones principales de cada sección */
+.perfil-btn {
+    margin-top: 8px;
+    margin-bottom: 6px;
+}
+
+/* Separador entre datos personales y cambio de contraseña */
+.perfil-separador {
+    margin-top: 25px;
+    margin-bottom: 25px;
+}
+
+/* Ajuste del botón Ver/Ocultar contraseña */
+.btn-ver-password {
+    min-width: 80px;
+}
+
+/* Ayuda a que el input y el botón Ver queden alineados */
+.perfil-input-password {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+    /* El campo ocupa todo el espacio disponible */
+    .perfil-input-password .form-control {
+        flex: 1;
+    }

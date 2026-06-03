@@ -1,25 +1,68 @@
 ﻿@model PruebaSegundaUnidad.Models.LoginViewModel
-@{ ViewBag.Title = "Iniciar sesión"; }
+
+@{
+    // Título que se muestra en la pestaña del navegador.
+    ViewBag.Title = "Iniciar sesión";
+}
+
+@* Antes: el login ya cargaba login.css.
+    Ahora: ese CSS se usa para separar mejor inputs, botón y mensajes sin afectar otras vistas. *@
+<link href="@Url.Content("~/Content/login.css")" rel="stylesheet" />
 
 <div class="login-page">
+
+    @* Tarjeta principal del login *@
     <div class="panel panel-primary login-card">
-        <div class="panel-heading text-center"><h3>TechHelpWeb</h3></div>
+
+        <div class="panel-heading text-center">
+            <h3>TechHelpWeb</h3>
+        </div>
+
         <div class="panel-body">
+
+            @* Antes: el error se mostraba, pero sin clase propia del login.
+                Ahora: queda con login-error para manejar mejor el espacio visual. *@
             @if (ViewBag.Error != null)
-            {<div class="alert alert-danger">@ViewBag.Error</div>}
+            {
+                <div class="alert alert-danger login-error">
+                    @ViewBag.Error
+                </div>
+            }
+
+            @* Formulario que envía usuario/correo y contraseña al AuthController *@
             @using (Html.BeginForm("Login", "Auth", FormMethod.Post))
             {
+                @* Token de seguridad para evitar envíos falsos *@
                 @Html.AntiForgeryToken()
-                <div class="form-group">
+
+                @* Campo usuario o correo *@
+                <div class="form-group login-form-group">
                     <label>Usuario o Correo</label>
+
                     @Html.TextBoxFor(m => m.UsuarioOCorreo, new { @class = "form-control" })
+
+                    @* Antes: no se veía la validación específica bajo el campo.
+                        Ahora: si falta usuario/correo, se puede mostrar el error del modelo. *@
+                    @Html.ValidationMessageFor(m => m.UsuarioOCorreo, "", new { @class = "text-danger login-validacion" })
                 </div>
-                <div class="form-group">
+
+                @* Campo contraseña *@
+                <div class="form-group login-form-group">
                     <label>Contraseña</label>
+
                     @Html.PasswordFor(m => m.Clave, new { @class = "form-control" })
+
+                    @* Antes: el botón quedaba muy pegado porque no había separación visual suficiente.
+                        Ahora: este campo usa login-form-group y el botón usa login-btn. *@
+                    @Html.ValidationMessageFor(m => m.Clave, "", new { @class = "text-danger login-validacion" })
                 </div>
-                <button type="submit" class="btn btn-success btn-block">Ingresar</button>
+
+                @* Botón que envía el formulario *@
+                <button type="submit" class="btn btn-success btn-block login-btn">
+                    Ingresar
+                </button>
             }
+
         </div>
     </div>
 </div>

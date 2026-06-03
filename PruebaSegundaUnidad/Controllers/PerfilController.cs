@@ -4,42 +4,100 @@ using PruebaSegundaUnidad.Repositories;
 
 namespace PruebaSegundaUnidad.Controllers
 {
-    /// Controlador encargado de mostrar el perfil del usuario
-    /// y permitir el cambio de contraseña desde la cuenta activa.
+    /// Controlador encargado de mostrar el perfil del usuario,
+    /// actualizar datos personales y cambiar contraseña sin usar API.
     public class PerfilController : Controller
     {
-        // Instancia del repositorio para trabajar con datos del perfil en la base de datos.
+        // Repositorio para trabajar con datos del perfil en la base de datos.
         private readonly PerfilRepository _perfilRepo = new PerfilRepository();
 
         #region Vista del perfil
 
         /// Petición GET: muestra la pantalla Mi Perfil.
-        /// <returns>Vista del perfil o redirección al login si no hay sesión.</returns>
         [HttpGet]
         public ActionResult Index()
         {
             // Verifica si existe un usuario con sesión iniciada.
             if (Session["UsuarioId"] == null)
             {
-                // Si no hay sesión, se devuelve al login.
                 return RedirectToAction("Login", "Auth");
             }
 
-            // Se crea el ViewModel que se enviará a la vista.
-            var perfil = new PerfilViewModel
+            int usuarioId = (int)Session["UsuarioId"];
+
+            // Antes: el perfil se armaba solo con datos guardados en Session.
+            // Ahora: se consulta la base para mostrar datos actualizados.
+            PerfilViewModel perfil = _perfilRepo.ObtenerDatosPerfil(usuarioId);
+
+            if (perfil == null)
             {
-                // Id del usuario guardado al iniciar sesión.
-                UsuarioId = (int)Session["UsuarioId"],
+                // Si por algún motivo no existe el usuario, se cierra la sesión.
+                Session.Clear();
+                Session.Abandon();
+                return RedirectToAction("Login", "Auth");
+            }
 
-                // Nombre completo del usuario conectado.
-                NombreCompleto = Session["NombreCompleto"].ToString(),
+            // Se actualiza Session por si el usuario modificó nombre o correo antes.
+            Session["NombreCompleto"] = perfil.NombreCompleto;
+            Session["Correo"] = perfil.Correo;
 
-                // Correo del usuario conectado.
-                Correo = Session["Correo"].ToString()
-            };
-
-            // Se muestra la vista Index con los datos del perfil.
             return View(perfil);
+        }
+
+        #endregion
+
+        #region Actualizar datos personales
+
+        /// Petición POST: actualiza nombre completo y correo del usuario autenticado.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ActualizarDatos(PerfilViewModel modelo)
+        {
+            // Si no hay sesión activa, no se permite guardar cambios.
+            if (Session["UsuarioId"] == null)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
+            // Se asegura que el Id usado sea el de la sesión, no uno alterado desde el formulario.
+            modelo.UsuarioId = (int)Session["UsuarioId"];
+
+            // Antes: Perfil solo permitía cambiar contraseña.
+            // Ahora: también valida y guarda datos básicos como nombre y correo.
+            if (!ModelState.IsValid)
+            {
+                return View("Index", modelo);
+            }
+
+            // Se revisa si el correo ya pertenece a otro usuario.
+            bool correoDuplicado = _perfilRepo.ExisteCorreoEnOtroUsuario(modelo.UsuarioId, modelo.Correo);
+
+            if (correoDuplicado)
+            {
+                ModelState.AddModelError("Correo", "Este correo ya está registrado por otro usuario.");
+                return View("Index", modelo);
+            }
+
+            // Se guardan los datos personales en la base de datos.
+            bool exito = _perfilRepo.ActualizarDatosPerfil(
+                modelo.UsuarioId,
+                modelo.NombreCompleto,
+                modelo.Correo
+            );
+
+            if (!exito)
+            {
+                ModelState.AddModelError("", "No se pudieron actualizar los datos del perfil.");
+                return View("Index", modelo);
+            }
+
+            // Se actualiza Session para que el menú superior muestre el nuevo nombre.
+            Session["NombreCompleto"] = modelo.NombreCompleto;
+            Session["Correo"] = modelo.Correo;
+
+            TempData["MensajePerfil"] = "Datos del perfil actualizados correctamente.";
+
+            return RedirectToAction("Index");
         }
 
         #endregion
@@ -47,8 +105,6 @@ namespace PruebaSegundaUnidad.Controllers
         #region Cambio de contraseña
 
         /// Petición POST: procesa el formulario de cambio de contraseña.
-        /// <param name="modelo">Datos ingresados en el formulario de perfil.</param>
-        /// <returns>Vista con errores o redirección al perfil con mensaje de éxito.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult ActualizarClave(PerfilViewModel modelo)
@@ -56,24 +112,51 @@ namespace PruebaSegundaUnidad.Controllers
             // Se valida nuevamente que exista una sesión activa.
             if (Session["UsuarioId"] == null)
             {
-                // Si no hay sesión, no se permite modificar la contraseña.
                 return RedirectToAction("Login", "Auth");
             }
 
-            // Se recupera el Id del usuario desde la sesión.
             modelo.UsuarioId = (int)Session["UsuarioId"];
 
-            // Se vuelve a cargar el nombre porque no viene completo desde el formulario.
-            modelo.NombreCompleto = Session["NombreCompleto"].ToString();
+            // Antes: los datos del perfil se recargaban desde Session.
+            // Ahora: se recargan desde la base para que la vista conserve datos actualizados.
+            PerfilViewModel datosPerfil = _perfilRepo.ObtenerDatosPerfil(modelo.UsuarioId);
 
-            // Se vuelve a cargar el correo para mostrarlo de nuevo en pantalla.
-            modelo.Correo = Session["Correo"].ToString();
+            if (datosPerfil != null)
+            {
+                modelo.NombreCompleto = datosPerfil.NombreCompleto;
+                modelo.Correo = datosPerfil.Correo;
+            }
 
-            // Revisa las validaciones del ViewModel:
-            // campos obligatorios, largo mínimo y confirmación de contraseña.
+            // Antes: la contraseña usaba Required en el ViewModel.
+            // Ahora: se valida manualmente para que el formulario de datos personales funcione separado.
+            if (string.IsNullOrWhiteSpace(modelo.ClaveActual))
+            {
+                ModelState.AddModelError("ClaveActual", "La contraseña actual es obligatoria.");
+            }
+
+            if (string.IsNullOrWhiteSpace(modelo.NuevaClave))
+            {
+                ModelState.AddModelError("NuevaClave", "La nueva contraseña es obligatoria.");
+            }
+            else if (modelo.NuevaClave.Length < 6)
+            {
+                ModelState.AddModelError("NuevaClave", "La contraseña debe tener al menos 6 caracteres.");
+            }
+
+            if (string.IsNullOrWhiteSpace(modelo.ConfirmarClave))
+            {
+                ModelState.AddModelError("ConfirmarClave", "Debe confirmar la nueva contraseña.");
+            }
+
+            if (!string.IsNullOrWhiteSpace(modelo.NuevaClave) &&
+                !string.IsNullOrWhiteSpace(modelo.ConfirmarClave) &&
+                modelo.NuevaClave != modelo.ConfirmarClave)
+            {
+                ModelState.AddModelError("ConfirmarClave", "Las contraseñas no coinciden.");
+            }
+
             if (!ModelState.IsValid)
             {
-                // Si hay errores, vuelve a la misma vista mostrando los mensajes.
                 return View("Index", modelo);
             }
 
@@ -83,13 +166,9 @@ namespace PruebaSegundaUnidad.Controllers
                 modelo.ClaveActual
             );
 
-            // Si la contraseña actual no coincide, no se permite actualizar.
             if (!claveActualCorrecta)
             {
-                // El error se asocia directamente al campo ClaveActual.
                 ModelState.AddModelError("ClaveActual", "La contraseña actual no es correcta.");
-
-                // Vuelve a la vista con el error visible.
                 return View("Index", modelo);
             }
 
@@ -99,20 +178,14 @@ namespace PruebaSegundaUnidad.Controllers
                 modelo.NuevaClave
             );
 
-            // Si por alguna razón no se actualizó ninguna fila, se muestra error.
             if (!exito)
             {
-                // Error general del formulario.
                 ModelState.AddModelError("", "No se pudo actualizar la contraseña.");
-
-                // Vuelve a la vista mostrando el error.
                 return View("Index", modelo);
             }
 
-            // TempData permite mostrar el mensaje después de redirigir.
-            TempData["MensajeExito"] = "Contraseña actualizada correctamente.";
+            TempData["MensajeClave"] = "Contraseña actualizada correctamente.";
 
-            // Redirige al GET de Index para no quedar en /Perfil/ActualizarClave.
             return RedirectToAction("Index");
         }
 
