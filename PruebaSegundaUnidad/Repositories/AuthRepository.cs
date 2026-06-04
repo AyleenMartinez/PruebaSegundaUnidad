@@ -5,7 +5,7 @@ using PruebaSegundaUnidad.Models;
 
 namespace PruebaSegundaUnidad.Repositories
 {
-    // Repositorio encargado de consultar usuarios para el inicio de sesión.
+    // Repositorio encargado de las consultas SQL del inicio de sesión.
     public class AuthRepository
     {
         // Cadena de conexión definida en Web.config.
@@ -14,13 +14,12 @@ namespace PruebaSegundaUnidad.Repositories
         #region Buscar usuario para login
 
         // Busca una cuenta usando nombre de usuario o correo.
-        // Aquí no se valida contraseña ni estado, solo se busca si la cuenta existe.
+        // Solo busca si la cuenta existe; la contraseña y el estado se revisan en el controlador.
         public Usuario ObtenerPorUsuarioOCorreo(string usuarioOCorreo)
         {
             using (SqlConnection con = new SqlConnection(conexion))
             {
-                // Consulta el usuario junto con su rol.
-                // Se permite buscar por NombreUsuario o por Correo.
+                // Consulta la tabla Usuarios y la relaciona con Roles para obtener el nombre del rol.
                 string query = @"
                     SELECT 
                         U.Id,
@@ -39,14 +38,16 @@ namespace PruebaSegundaUnidad.Repositories
 
                 SqlCommand cmd = new SqlCommand(query, con);
 
-                // Parámetro recibido desde el formulario de login.
+                // Parámetro que recibe lo escrito en el campo Usuario o Correo.
                 cmd.Parameters.AddWithValue("@UsuarioOCorreo", usuarioOCorreo);
 
+                // Abre la conexión antes de ejecutar la consulta.
                 con.Open();
 
+                // ExecuteReader se usa porque esta consulta devuelve filas desde la base de datos.
                 using (SqlDataReader reader = cmd.ExecuteReader())
                 {
-                    // Si encuentra una fila, arma el objeto Usuario.
+                    // Si encuentra un usuario, se arma el objeto Usuario.
                     if (reader.Read())
                     {
                         return new Usuario
@@ -65,7 +66,7 @@ namespace PruebaSegundaUnidad.Repositories
                 }
             }
 
-            // Si no encuentra usuario o correo, devuelve null.
+            // Si no encuentra usuario ni correo, devuelve null.
             return null;
         }
 

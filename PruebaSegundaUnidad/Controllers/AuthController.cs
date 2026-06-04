@@ -5,10 +5,10 @@ using PruebaSegundaUnidad.Repositories;
 namespace PruebaSegundaUnidad.Controllers
 {
     // Controlador encargado del inicio y cierre de sesión.
-    // Este módulo funciona con MVC y Razor, sin API.
+    // Este módulo funciona con MVC y Razor, sin usar API.
     public class AuthController : Controller
     {
-        // Repositorio que consulta usuarios y roles en la base de datos.
+        // Repositorio que consulta los usuarios y roles en la base de datos.
         private readonly AuthRepository authRepository = new AuthRepository();
 
         #region Login
@@ -16,13 +16,13 @@ namespace PruebaSegundaUnidad.Controllers
         [HttpGet]
         public ActionResult Login()
         {
-            // Si ya hay sesión activa, se envía al dashboard principal.
+            // Si ya existe una sesión activa, no se muestra el login otra vez.
             if (Session["UsuarioId"] != null)
             {
                 return RedirectToAction("Index", "Home");
             }
 
-            // Muestra la vista de login.
+            // Muestra la vista del formulario de inicio de sesión.
             return View();
         }
 
@@ -30,49 +30,47 @@ namespace PruebaSegundaUnidad.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Login(LoginViewModel modelo)
         {
-            // Si no escribió usuario/correo, se deja que el modelo muestre sus validaciones.
+            // Revisa si el usuario/correo viene vacío.
             if (string.IsNullOrWhiteSpace(modelo.UsuarioOCorreo))
             {
                 return View(modelo);
             }
 
-            // Limpia espacios para evitar errores por escribir con espacio al inicio o final.
+            // Limpia espacios al inicio o final para evitar errores al buscar.
             modelo.UsuarioOCorreo = modelo.UsuarioOCorreo.Trim();
 
-            // Primero se busca la cuenta por usuario o correo.
+            // Busca la cuenta usando nombre de usuario o correo.
             var usuario = authRepository.ObtenerPorUsuarioOCorreo(modelo.UsuarioOCorreo);
 
-            // Si no existe la cuenta, se muestra error general.
+            // Si no encuentra la cuenta, muestra un mensaje general.
             if (usuario == null)
             {
                 ViewBag.Error = "Usuario o contraseña incorrectos";
                 return View(modelo);
             }
 
-            // Si la cuenta existe pero está inactiva, se muestra mensaje específico.
-            // Esta validación va antes de revisar la contraseña para informar claramente el estado de la cuenta.
+            // Si la cuenta existe pero está inactiva, no permite el ingreso.
             if (!usuario.Estado)
             {
                 ViewBag.Error = "La cuenta se encuentra inactiva. Comuníquese con un administrador.";
                 return View(modelo);
             }
 
-            // Revisa las validaciones del formulario.
-            // Esto valida, por ejemplo, que la contraseña no venga vacía.
+            // Revisa las validaciones del modelo, por ejemplo contraseña obligatoria.
             if (!ModelState.IsValid)
             {
                 return View(modelo);
             }
 
-            // Si la cuenta está activa, se revisa la contraseña.
-            // En esta versión académica el campo ClaveHash guarda texto simple.
+            // En esta versión académica, ClaveHash se compara como texto simple.
+            // En un sistema real debería compararse usando hash seguro.
             if (usuario.ClaveHash != modelo.Clave)
             {
                 ViewBag.Error = "Usuario o contraseña incorrectos";
                 return View(modelo);
             }
 
-            // Se guardan datos importantes del usuario conectado en Session.
+            // Guarda datos del usuario conectado para usarlos en las demás vistas.
             Session["UsuarioId"] = usuario.Id;
             Session["NombreCompleto"] = usuario.NombreCompleto;
             Session["Correo"] = usuario.Correo;
@@ -88,13 +86,13 @@ namespace PruebaSegundaUnidad.Controllers
 
         public ActionResult Logout()
         {
-            // Limpia los datos guardados en sesión.
+            // Limpia todos los datos guardados en Session.
             Session.Clear();
 
-            // Finaliza la sesión actual.
+            // Finaliza la sesión actual del usuario.
             Session.Abandon();
 
-            // Vuelve al login.
+            // Redirige nuevamente al login.
             return RedirectToAction("Login", "Auth");
         }
 

@@ -4,7 +4,10 @@
     ViewBag.Title = "Iniciar sesión";
 }
 
+@* CSS propio del login *@
 <link href="@Url.Content("~/Content/login.css")" rel="stylesheet" />
+
+@* CSS reutilizable para el botón Ver/Ocultar contraseña *@
 <link href="@Url.Content("~/Content/password-toggle.css")" rel="stylesheet" />
 
 <div class="login-page">
@@ -16,6 +19,7 @@
 
         <div class="panel-body">
 
+            @* Muestra errores generales del login, como usuario incorrecto o cuenta inactiva *@
             @if (ViewBag.Error != null)
             {
                 <div class="alert alert-danger login-error">
@@ -23,15 +27,19 @@
                 </div>
             }
 
+            @* Formulario que envía los datos al método Login del AuthController *@
             @using (Html.BeginForm("Login", "Auth", FormMethod.Post))
             {
+                @* Token de seguridad para proteger el formulario *@
                 @Html.AntiForgeryToken()
 
                 <div class="form-group login-form-group">
                     <label>Usuario o Correo</label>
 
+                    @* Campo para escribir nombre de usuario o correo *@
                     @Html.TextBoxFor(m => m.UsuarioOCorreo, new { @class = "form-control" })
 
+                    @* Mensaje de validación para usuario/correo obligatorio *@
                     @Html.ValidationMessageFor(m => m.UsuarioOCorreo, "", new { @class = "text-danger login-validacion" })
                 </div>
 
@@ -39,8 +47,11 @@
                     <label>Contraseña</label>
 
                     <div class="password-wrapper">
+
+                        @* Campo de contraseña *@
                         @Html.PasswordFor(m => m.Clave, new { @class = "form-control", id = "Clave" })
 
+                        @* Botón reutilizable para mostrar u ocultar la contraseña *@
                         <button type="button"
                                 class="password-toggle"
                                 data-target="Clave">
@@ -48,6 +59,7 @@
                         </button>
                     </div>
 
+                    @* Mensaje de validación para contraseña obligatoria *@
                     @Html.ValidationMessageFor(m => m.Clave, "", new { @class = "text-danger login-validacion" })
                 </div>
 
@@ -62,5 +74,7 @@
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
+
+    @* Script reutilizable para mostrar u ocultar contraseñas *@
     <script src="@Url.Content("~/Scripts/app/password-toggle.js?v=1")"></script>
 }
