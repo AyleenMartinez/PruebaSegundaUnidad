@@ -7,21 +7,22 @@ using PruebaSegundaUnidad.Models;
 namespace PruebaSegundaUnidad.Repositories
 {
     // Repositorio encargado de las consultas SQL para usuarios.
-    // Se usa desde UsuariosController.
+    // Se usa desde UsuariosController para separar la lógica de base de datos.
     public class UsuarioRepository
     {
-        // Cadena de conexión guardada en Web.config.
+        // Cadena de conexión definida en Web.config.
         private readonly string conexion = ConfigurationManager.ConnectionStrings["ConexionSQL"].ConnectionString;
 
         #region Listar usuarios
 
-        // Obtiene todos los usuarios junto con su rol.
+        // Obtiene todos los usuarios junto con el nombre de su rol.
         public List<Usuario> ObtenerTodos()
         {
             List<Usuario> lista = new List<Usuario>();
 
             using (SqlConnection con = new SqlConnection(conexion))
             {
+                // Se hace JOIN con Roles porque NombreRol no está directamente en la tabla Usuarios.
                 string query = @"
                     SELECT 
                         U.Id,
@@ -40,8 +41,10 @@ namespace PruebaSegundaUnidad.Repositories
 
                 con.Open();
 
+                // ExecuteReader se usa porque esta consulta devuelve varias filas.
                 using (SqlDataReader reader = cmd.ExecuteReader())
                 {
+                    // Se recorre cada fila devuelta por SQL Server.
                     while (reader.Read())
                     {
                         lista.Add(new Usuario
@@ -66,7 +69,8 @@ namespace PruebaSegundaUnidad.Repositories
 
         #region Validaciones de duplicados
 
-        // Revisa si existe otro usuario con el mismo correo.
+        // Revisa si ya existe un usuario con el mismo correo.
+        // Si usuarioIdExcluir tiene valor, excluye ese Id para permitir editar el mismo usuario.
         public bool ExisteCorreo(string correo, int? usuarioIdExcluir = null)
         {
             using (SqlConnection con = new SqlConnection(conexion))
@@ -76,6 +80,7 @@ namespace PruebaSegundaUnidad.Repositories
                     FROM Usuarios
                     WHERE Correo = @Correo";
 
+                // Esta parte se usa al editar, para no comparar el usuario consigo mismo.
                 if (usuarioIdExcluir != null)
                 {
                     query += " AND Id <> @Id";
@@ -91,13 +96,15 @@ namespace PruebaSegundaUnidad.Repositories
 
                 con.Open();
 
+                // ExecuteScalar se usa porque el SELECT COUNT(*) devuelve un solo valor.
                 int cantidad = (int)cmd.ExecuteScalar();
 
                 return cantidad > 0;
             }
         }
 
-        // Revisa si existe otro usuario con el mismo nombre de usuario.
+        // Revisa si ya existe un usuario con el mismo nombre de usuario.
+        // También permite excluir un Id cuando se está editando.
         public bool ExisteNombreUsuario(string nombreUsuario, int? usuarioIdExcluir = null)
         {
             using (SqlConnection con = new SqlConnection(conexion))
@@ -122,6 +129,7 @@ namespace PruebaSegundaUnidad.Repositories
 
                 con.Open();
 
+                // Devuelve cuántos usuarios existen con el mismo nombre de usuario.
                 int cantidad = (int)cmd.ExecuteScalar();
 
                 return cantidad > 0;
@@ -132,7 +140,7 @@ namespace PruebaSegundaUnidad.Repositories
 
         #region Crear usuario
 
-        // Inserta un usuario nuevo en la base.
+        // Inserta un usuario nuevo en la base de datos.
         public void Insertar(Usuario usuario)
         {
             using (SqlConnection con = new SqlConnection(conexion))
@@ -158,6 +166,8 @@ namespace PruebaSegundaUnidad.Repositories
                     )";
 
                 SqlCommand cmd = new SqlCommand(query, con);
+
+                // Se envían los valores como parámetros para evitar concatenar texto directo en SQL.
                 cmd.Parameters.AddWithValue("@RolId", usuario.RolId);
                 cmd.Parameters.AddWithValue("@NombreCompleto", usuario.NombreCompleto);
                 cmd.Parameters.AddWithValue("@NombreUsuario", usuario.NombreUsuario);
@@ -167,6 +177,7 @@ namespace PruebaSegundaUnidad.Repositories
 
                 con.Open();
 
+                // ExecuteNonQuery se usa porque INSERT modifica la base y no devuelve tabla.
                 cmd.ExecuteNonQuery();
             }
         }
@@ -175,7 +186,7 @@ namespace PruebaSegundaUnidad.Repositories
 
         #region Obtener usuario por Id
 
-        // Busca un usuario por su Id.
+        // Busca un usuario específico por su Id.
         public Usuario ObtenerPorId(int id)
         {
             Usuario usuario = null;
@@ -198,6 +209,7 @@ namespace PruebaSegundaUnidad.Repositories
 
                 con.Open();
 
+                // ExecuteReader se usa porque se espera leer una fila con datos del usuario.
                 using (SqlDataReader reader = cmd.ExecuteReader())
                 {
                     if (reader.Read())
@@ -222,7 +234,7 @@ namespace PruebaSegundaUnidad.Repositories
 
         #region Editar usuario
 
-        // Actualiza los datos de un usuario existente.
+        // Actualiza los datos básicos de un usuario existente.
         // La contraseña no se cambia desde este método.
         public void Actualizar(Usuario usuario)
         {
@@ -238,6 +250,7 @@ namespace PruebaSegundaUnidad.Repositories
                     WHERE Id = @Id";
 
                 SqlCommand cmd = new SqlCommand(query, con);
+
                 cmd.Parameters.AddWithValue("@RolId", usuario.RolId);
                 cmd.Parameters.AddWithValue("@NombreCompleto", usuario.NombreCompleto);
                 cmd.Parameters.AddWithValue("@NombreUsuario", usuario.NombreUsuario);
@@ -247,6 +260,7 @@ namespace PruebaSegundaUnidad.Repositories
 
                 con.Open();
 
+                // ExecuteNonQuery se usa porque UPDATE modifica datos.
                 cmd.ExecuteNonQuery();
             }
         }
@@ -274,6 +288,7 @@ namespace PruebaSegundaUnidad.Repositories
 
                 con.Open();
 
+                // ExecuteNonQuery se usa porque se actualiza el campo Estado.
                 cmd.ExecuteNonQuery();
             }
         }

@@ -16,7 +16,7 @@ namespace PruebaSegundaUnidad.Models
         public int RolId { get; set; }
 
         // Nombre del rol que viene desde la tabla Roles.
-        // Se llena cuando se hace JOIN entre Usuarios y Roles.
+        // No es una columna directa de Usuarios; se llena cuando se hace JOIN con Roles.
         public string NombreRol { get; set; }
 
         // Nombre completo de la persona.
@@ -36,14 +36,13 @@ namespace PruebaSegundaUnidad.Models
         public string Correo { get; set; }
 
         // Contraseña para acceder al sistema.
-        // Aunque el campo se llama ClaveHash, en esta prueba se guarda texto simple.
-        // En un sistema real debería guardarse con hash seguro.
         [Required(ErrorMessage = "La contraseña es obligatoria")]
         [MinLength(4, ErrorMessage = "La contraseña debe tener al menos 4 caracteres")]
         [DataType(DataType.Password)]
         public string ClaveHash { get; set; }
 
         // Indica si el usuario puede iniciar sesión.
+        // true = Activo / false = Inactivo.
         public bool Estado { get; set; }
 
         // Fecha en que se creó el usuario.

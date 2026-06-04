@@ -4,6 +4,7 @@
     ViewBag.Title = "Registrar Usuario";
 }
 
+@* CSS reutilizable para mostrar u ocultar contraseña *@
 <link href="@Url.Content("~/Content/password-toggle.css")" rel="stylesheet" />
 
 <div class="row">
@@ -14,8 +15,10 @@
         <div class="panel panel-default panel-soporte">
             <div class="panel-body">
 
+                @* Muestra errores generales del formulario *@
                 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
+                @* Formulario MVC que envía los datos al método Crear del UsuariosController *@
                 @using (Html.BeginForm("Crear", "Usuarios", FormMethod.Post))
                 {
                     @Html.AntiForgeryToken()
@@ -117,5 +120,7 @@
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
+
+    @* Script reutilizable para mostrar u ocultar contraseñas *@
     <script src="@Url.Content("~/Scripts/app/password-toggle.js?v=1")"></script>
 }
