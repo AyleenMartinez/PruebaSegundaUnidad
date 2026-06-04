@@ -1,42 +1,52 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace PruebaSegundaUnidad.Models
 {
-    /// Representa la entidad principal de un usuario dentro del sistema.
-    /// Contiene los datos persistentes de la base de datos y se utiliza para 
-    /// gestionar la sesión, la autorización por roles y la visualización del perfil.
+    // Representa un usuario del sistema.
+    // Se usa en login, gestión de usuarios, roles y perfil.
     public class Usuario
     {
-        /// Identificador único del usuario (Llave Primaria).
+        // Id principal del usuario en la base de datos.
         public int Id { get; set; }
 
-        /// Identificador del rol asignado (Llave Foránea).
+        // Rol asociado al usuario.
+        // Debe venir seleccionado desde el formulario.
+        [Range(1, int.MaxValue, ErrorMessage = "Debe seleccionar un rol")]
         public int RolId { get; set; }
 
-        /// Propiedad auxiliar (no existe como columna directa en la tabla Usuarios).
-        /// Almacena el nombre descriptivo del rol resultante de un JOIN con la tabla Roles
-        /// para facilitar la visualización en la interfaz.
+        // Nombre del rol que viene desde la tabla Roles.
+        // Se llena cuando se hace JOIN entre Usuarios y Roles.
         public string NombreRol { get; set; }
 
-        /// Nombre real de la persona. Se utiliza para el autocompletado en 
-        /// las solicitudes de soporte (Fase 4).
+        // Nombre completo de la persona.
+        [Required(ErrorMessage = "El nombre completo es obligatorio")]
+        [StringLength(100, ErrorMessage = "El nombre completo no puede superar los 100 caracteres")]
         public string NombreCompleto { get; set; }
 
-        /// Credencial de acceso (Username) única en el sistema.
+        // Nombre de usuario usado para iniciar sesión.
+        [Required(ErrorMessage = "El nombre de usuario es obligatorio")]
+        [StringLength(50, ErrorMessage = "El nombre de usuario no puede superar los 50 caracteres")]
         public string NombreUsuario { get; set; }
 
-        /// Correo electrónico corporativo o personal, único por usuario.
+        // Correo del usuario.
+        [Required(ErrorMessage = "El correo es obligatorio")]
+        [EmailAddress(ErrorMessage = "Debe ingresar un correo válido")]
+        [StringLength(100, ErrorMessage = "El correo no puede superar los 100 caracteres")]
         public string Correo { get; set; }
 
-        /// Contraseña encriptada. Nunca debe viajar hacia la vista (frontend) 
-        /// por motivos de seguridad; solo se utiliza en procesos de backend.
+        // Contraseña para acceder al sistema.
+        // Aunque el campo se llama ClaveHash, en esta prueba se guarda texto simple.
+        // En un sistema real debería guardarse con hash seguro.
+        [Required(ErrorMessage = "La contraseña es obligatoria")]
+        [MinLength(4, ErrorMessage = "La contraseña debe tener al menos 4 caracteres")]
+        [DataType(DataType.Password)]
         public string ClaveHash { get; set; }
 
-        /// Indicador de acceso (Activo/Inactivo). Si es 'false', el usuario 
-        /// no podrá iniciar sesión en el sistema.
+        // Indica si el usuario puede iniciar sesión.
         public bool Estado { get; set; }
 
-        /// Fecha y hora exacta en la que se creó la cuenta en la base de datos.
+        // Fecha en que se creó el usuario.
         public DateTime FechaRegistro { get; set; }
     }
 }

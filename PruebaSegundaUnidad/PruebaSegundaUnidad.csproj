@@ -175,11 +175,13 @@
     <Content Include="Content\bootstrap\bootstrap.rtl.min.css" />
     <Content Include="Content\index.css" />
     <Content Include="Content\login.css" />
+    <Content Include="Content\password-toggle.css" />
     <Content Include="Content\perfil.css" />
     <Content Include="Content\solicitudes.css" />
     <Content Include="Content\usuarios.css" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
+    <Content Include="Scripts\app\password-toggle.js" />
     <Content Include="Scripts\app\solicitudes.js" />
     <Content Include="Scripts\bootstrap.bundle.js" />
     <Content Include="Scripts\bootstrap.bundle.min.js" />

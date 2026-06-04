@@ -1,32 +1,24 @@
 ﻿@model PruebaSegundaUnidad.Models.PerfilViewModel
 
 @{
-    // Título que se muestra en la pestaña y en el layout.
     ViewBag.Title = "Mi Perfil";
 }
 
 <link href="@Url.Content("~/Content/perfil.css")" rel="stylesheet" />
+<link href="@Url.Content("~/Content/password-toggle.css")" rel="stylesheet" />
 
 <div class="row perfil-contenedor">
 
-    @* Contenedor principal centrado *@
     <div class="col-md-7 col-md-offset-2">
 
         <h2>Mi Perfil</h2>
 
-        @* Panel principal del perfil *@
         <div class="perfil-card">
-
-            @* ==========================================================
-                SECCIÓN 1: DATOS PERSONALES
-                ========================================================== *@
 
             <div class="perfil-seccion">
 
                 <h4>Datos personales</h4>
 
-                @* Antes: el perfil solo mostraba nombre y correo como texto.
-                    Ahora: permite editar y guardar esos datos desde MVC/Razor, sin API. *@
                 @using (Html.BeginForm("ActualizarDatos", "Perfil", FormMethod.Post))
                 {
                     @Html.AntiForgeryToken()
@@ -54,6 +46,7 @@
                             @TempData["MensajePerfil"]
                         </div>
                     }
+
                     <button type="submit" class="btn btn-success perfil-btn">
                         Guardar datos
                     </button>
@@ -62,10 +55,6 @@
             </div>
 
             <hr class="perfil-separador" />
-
-            @* ==========================================================
-                SECCIÓN 2: CAMBIO DE CONTRASEÑA
-                ========================================================== *@
 
             <div class="perfil-seccion">
 
@@ -80,27 +69,23 @@
 
                 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
-                @* Antes: esta vista solo tenía el formulario de contraseña.
-                    Ahora: se mantiene, pero separado visualmente de datos personales. *@
                 @using (Html.BeginForm("ActualizarClave", "Perfil", FormMethod.Post))
                 {
                     @Html.AntiForgeryToken()
 
                     @Html.HiddenFor(m => m.UsuarioId)
-
-                    @* Estos campos se envían ocultos para conservar datos básicos al validar contraseña. *@
                     @Html.HiddenFor(m => m.NombreCompleto)
                     @Html.HiddenFor(m => m.Correo)
 
                     <div class="form-group perfil-form-group">
                         <label>Contraseña actual <span class="text-danger">*</span></label>
 
-                        @* Antes: el botón Ver quedaba muy pegado al campo.
-                            Ahora: se usa un contenedor flexible con separación. *@
-                        <div class="perfil-input-password">
+                        <div class="password-wrapper">
                             @Html.PasswordFor(m => m.ClaveActual, new { @class = "form-control", id = "ClaveActual" })
 
-                            <button type="button" class="btn btn-outline-secondary btn-ver-password" data-target="ClaveActual">
+                            <button type="button"
+                                    class="password-toggle"
+                                    data-target="ClaveActual">
                                 Ver
                             </button>
                         </div>
@@ -111,10 +96,12 @@
                     <div class="form-group perfil-form-group">
                         <label>Nueva contraseña <span class="text-danger">*</span></label>
 
-                        <div class="perfil-input-password">
+                        <div class="password-wrapper">
                             @Html.PasswordFor(m => m.NuevaClave, new { @class = "form-control", id = "NuevaClave" })
 
-                            <button type="button" class="btn btn-outline-secondary btn-ver-password" data-target="NuevaClave">
+                            <button type="button"
+                                    class="password-toggle"
+                                    data-target="NuevaClave">
                                 Ver
                             </button>
                         </div>
@@ -125,10 +112,12 @@
                     <div class="form-group perfil-form-group">
                         <label>Confirmar nueva contraseña <span class="text-danger">*</span></label>
 
-                        <div class="perfil-input-password">
+                        <div class="password-wrapper">
                             @Html.PasswordFor(m => m.ConfirmarClave, new { @class = "form-control", id = "ConfirmarClave" })
 
-                            <button type="button" class="btn btn-outline-secondary btn-ver-password" data-target="ConfirmarClave">
+                            <button type="button"
+                                    class="password-toggle"
+                                    data-target="ConfirmarClave">
                                 Ver
                             </button>
                         </div>
@@ -136,8 +125,6 @@
                         @Html.ValidationMessageFor(m => m.ConfirmarClave, "", new { @class = "text-danger" })
                     </div>
 
-                    @* Antes: el botón quedaba pegado al último campo.
-                        Ahora: tiene margen superior y queda más respirado. *@
                     <button type="submit" class="btn btn-primary perfil-btn">
                         Cambiar contraseña
                     </button>
@@ -150,36 +137,7 @@
     </div>
 </div>
 
-<script>
-    // Se buscan todos los botones para ver u ocultar contraseña.
-    var botonesPassword = document.querySelectorAll(".btn-ver-password");
-
-    // Se recorre cada botón encontrado.
-    for (var i = 0; i < botonesPassword.length; i++) {
-
-        botonesPassword[i].addEventListener("click", function () {
-
-            // Se obtiene el id del campo asociado a este botón.
-            var idCampo = this.getAttribute("data-target");
-
-            // Se busca el campo de contraseña.
-            var campo = document.getElementById(idCampo);
-
-            if (campo == null) {
-                return;
-            }
-
-            // Si está oculto como password, se muestra como texto.
-            if (campo.type === "password") {
-                campo.type = "text";
-                this.textContent = "Ocultar";
-            }
-
-            // Si ya está visible, se vuelve a ocultar.
-            else {
-                campo.type = "password";
-                this.textContent = "Ver";
-            }
-        });
-    }
-</script>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="@Url.Content("~/Scripts/app/password-toggle.js?v=1")"></script>
+}

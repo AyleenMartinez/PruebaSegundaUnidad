@@ -4,31 +4,64 @@ using PruebaSegundaUnidad.Repositories;
 
 namespace PruebaSegundaUnidad.Controllers
 {
-    // Controlador MVC encargado de administrar usuarios del sistema.
-    // Permite listar, crear, editar y cambiar el estado de un usuario.
+    // Controlador MVC encargado de administrar usuarios.
+    // Permite listar, crear, editar y cambiar estado.
     public class UsuariosController : Controller
     {
-        // Repositorio que contiene las consultas relacionadas con la tabla Usuarios.
+        // Repositorio de consultas SQL para usuarios.
         private readonly UsuarioRepository _usuarioRepo = new UsuarioRepository();
 
-        // Repositorio usado para cargar datos de apoyo, como los roles.
+        // Repositorio para cargar catálogos, como roles.
         private readonly CatalogoRepository _catalogoRepo = new CatalogoRepository();
+
+        #region Seguridad del módulo
+
+        // Revisa si hay una sesión activa.
+        private bool HaySesionActiva()
+        {
+            return Session["UsuarioId"] != null;
+        }
+
+        // Revisa si el usuario conectado es Administrador.
+        private bool UsuarioEsAdministrador()
+        {
+            return Session["Rol"] != null && Session["Rol"].ToString() == "Administrador";
+        }
+
+        // Protege el módulo de usuarios.
+        private ActionResult ValidarAcceso()
+        {
+            if (!HaySesionActiva())
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
+            if (!UsuarioEsAdministrador())
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            return null;
+        }
+
+        #endregion
 
         #region Listado de usuarios
 
         [HttpGet]
         public ActionResult Index()
         {
-            // Se valida que exista una sesión activa antes de mostrar la administración de usuarios.
-            if (Session["UsuarioId"] == null)
+            // Se valida acceso al módulo.
+            ActionResult acceso = ValidarAcceso();
+
+            if (acceso != null)
             {
-                return RedirectToAction("Login", "Auth");
+                return acceso;
             }
 
-            // Se obtiene la lista completa de usuarios registrados.
+            // Se obtiene la lista completa de usuarios.
             var usuarios = _usuarioRepo.ObtenerTodos();
 
-            // Se envía la lista de usuarios a la vista Index.
             return View(usuarios);
         }
 
@@ -39,16 +72,17 @@ namespace PruebaSegundaUnidad.Controllers
         [HttpGet]
         public ActionResult Crear()
         {
-            // Se valida que exista una sesión activa antes de permitir crear usuarios.
-            if (Session["UsuarioId"] == null)
+            // Se valida acceso al módulo.
+            ActionResult acceso = ValidarAcceso();
+
+            if (acceso != null)
             {
-                return RedirectToAction("Login", "Auth");
+                return acceso;
             }
 
-            // Se cargan los roles para mostrarlos en el formulario de creación.
+            // Se cargan roles para el formulario.
             ViewBag.Roles = _catalogoRepo.ObtenerRoles();
 
-            // Se muestra la vista Crear.
             return View();
         }
 
@@ -56,26 +90,52 @@ namespace PruebaSegundaUnidad.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Crear(Usuario usuario)
         {
-            // Se valida que exista una sesión activa antes de guardar un nuevo usuario.
-            if (Session["UsuarioId"] == null)
+            // Se valida acceso al módulo.
+            ActionResult acceso = ValidarAcceso();
+
+            if (acceso != null)
             {
-                return RedirectToAction("Login", "Auth");
+                return acceso;
             }
 
-            // Se revisa si los datos ingresados cumplen las validaciones del modelo.
+            // Se limpian espacios innecesarios.
+            if (usuario.NombreCompleto != null)
+            {
+                usuario.NombreCompleto = usuario.NombreCompleto.Trim();
+            }
+
+            if (usuario.NombreUsuario != null)
+            {
+                usuario.NombreUsuario = usuario.NombreUsuario.Trim();
+            }
+
+            if (usuario.Correo != null)
+            {
+                usuario.Correo = usuario.Correo.Trim();
+            }
+
+            // Se valida si el correo ya existe.
+            if (!string.IsNullOrWhiteSpace(usuario.Correo) && _usuarioRepo.ExisteCorreo(usuario.Correo))
+            {
+                ModelState.AddModelError("Correo", "Este correo ya está registrado por otro usuario.");
+            }
+
+            // Se valida si el nombre de usuario ya existe.
+            if (!string.IsNullOrWhiteSpace(usuario.NombreUsuario) && _usuarioRepo.ExisteNombreUsuario(usuario.NombreUsuario))
+            {
+                ModelState.AddModelError("NombreUsuario", "Este nombre de usuario ya está registrado.");
+            }
+
+            // Se revisan las validaciones del modelo.
             if (!ModelState.IsValid)
             {
-                // Se cargan nuevamente los roles para que el select no quede vacío al volver a la vista.
                 ViewBag.Roles = _catalogoRepo.ObtenerRoles();
-
-                // Se devuelve la vista con los datos ingresados y los mensajes de error.
                 return View(usuario);
             }
 
-            // Se inserta el nuevo usuario en la base de datos.
+            // Se inserta el usuario en la base.
             _usuarioRepo.Insertar(usuario);
 
-            // Se vuelve al listado principal de usuarios.
             return RedirectToAction("Index");
         }
 
@@ -86,31 +146,31 @@ namespace PruebaSegundaUnidad.Controllers
         [HttpGet]
         public ActionResult Editar(int? id)
         {
-            // Se valida que exista una sesión activa antes de editar usuarios.
-            if (Session["UsuarioId"] == null)
+            // Se valida acceso al módulo.
+            ActionResult acceso = ValidarAcceso();
+
+            if (acceso != null)
             {
-                return RedirectToAction("Login", "Auth");
+                return acceso;
             }
 
-            // Se valida que la URL tenga un Id de usuario.
+            // Se valida que venga un Id en la URL.
             if (id == null)
             {
                 return RedirectToAction("Index");
             }
 
-            // Se busca el usuario en la base de datos usando el Id recibido.
+            // Se busca el usuario.
             var usuario = _usuarioRepo.ObtenerPorId(id.Value);
 
-            // Si el usuario no existe, se devuelve error 404.
             if (usuario == null)
             {
                 return HttpNotFound();
             }
 
-            // Se cargan los roles para mostrarlos en el formulario de edición.
+            // Se cargan roles para el formulario.
             ViewBag.Roles = _catalogoRepo.ObtenerRoles();
 
-            // Se muestra la vista Editar con los datos del usuario encontrado.
             return View(usuario);
         }
 
@@ -118,29 +178,55 @@ namespace PruebaSegundaUnidad.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Editar(Usuario usuario)
         {
-            // Se valida que exista una sesión activa antes de guardar cambios.
-            if (Session["UsuarioId"] == null)
+            // Se valida acceso al módulo.
+            ActionResult acceso = ValidarAcceso();
+
+            if (acceso != null)
             {
-                return RedirectToAction("Login", "Auth");
+                return acceso;
             }
 
-            // Este formulario no modifica contraseña, por eso se excluye ClaveHash de la validación.
+            // Este formulario no cambia contraseña.
             ModelState.Remove("ClaveHash");
 
-            // Se revisa si los datos editados cumplen las validaciones del modelo.
+            // Se limpian espacios innecesarios.
+            if (usuario.NombreCompleto != null)
+            {
+                usuario.NombreCompleto = usuario.NombreCompleto.Trim();
+            }
+
+            if (usuario.NombreUsuario != null)
+            {
+                usuario.NombreUsuario = usuario.NombreUsuario.Trim();
+            }
+
+            if (usuario.Correo != null)
+            {
+                usuario.Correo = usuario.Correo.Trim();
+            }
+
+            // Se revisa si el correo pertenece a otro usuario.
+            if (!string.IsNullOrWhiteSpace(usuario.Correo) && _usuarioRepo.ExisteCorreo(usuario.Correo, usuario.Id))
+            {
+                ModelState.AddModelError("Correo", "Este correo ya está registrado por otro usuario.");
+            }
+
+            // Se revisa si el nombre de usuario pertenece a otro usuario.
+            if (!string.IsNullOrWhiteSpace(usuario.NombreUsuario) && _usuarioRepo.ExisteNombreUsuario(usuario.NombreUsuario, usuario.Id))
+            {
+                ModelState.AddModelError("NombreUsuario", "Este nombre de usuario ya está registrado.");
+            }
+
+            // Se revisan las validaciones del modelo.
             if (!ModelState.IsValid)
             {
-                // Se cargan nuevamente los roles para que el formulario pueda mostrarse correctamente.
                 ViewBag.Roles = _catalogoRepo.ObtenerRoles();
-
-                // Se devuelve la vista con los datos ingresados y los errores.
                 return View(usuario);
             }
 
-            // Se actualizan los datos del usuario en la base de datos.
+            // Se actualizan los datos del usuario.
             _usuarioRepo.Actualizar(usuario);
 
-            // Se vuelve al listado principal de usuarios.
             return RedirectToAction("Index");
         }
 
@@ -151,23 +237,23 @@ namespace PruebaSegundaUnidad.Controllers
         [HttpGet]
         public ActionResult CambiarEstado(int? id)
         {
-            // Se valida que exista una sesión activa antes de cambiar el estado de un usuario.
-            if (Session["UsuarioId"] == null)
+            // Se valida acceso al módulo.
+            ActionResult acceso = ValidarAcceso();
+
+            if (acceso != null)
             {
-                return RedirectToAction("Login", "Auth");
+                return acceso;
             }
 
-            // Se valida que la URL tenga un Id de usuario.
+            // Se valida que venga un Id en la URL.
             if (id == null)
             {
                 return RedirectToAction("Index");
             }
 
-            // Se cambia el estado del usuario seleccionado.
-            // Si está activo, pasa a inactivo; si está inactivo, pasa a activo.
+            // Se cambia activo/inactivo.
             _usuarioRepo.CambiarEstado(id.Value);
 
-            // Se vuelve al listado para ver el estado actualizado.
             return RedirectToAction("Index");
         }
 

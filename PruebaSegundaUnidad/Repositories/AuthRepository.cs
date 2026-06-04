@@ -5,34 +5,22 @@ using PruebaSegundaUnidad.Models;
 
 namespace PruebaSegundaUnidad.Repositories
 {
-    /// Repositorio encargado de gestionar las operaciones de base de datos 
-    /// exclusivas del flujo de autenticación.
-    /// Separa completamente la lógica de SQL de los controladores MVC.
+    // Repositorio encargado de consultar usuarios para el inicio de sesión.
     public class AuthRepository
     {
-        #region Conexion
-
-        // Verifica que el nombre "ConexionSQL" sea exactamente el mismo 
-        // atributo 'name' definido en la sección <connectionStrings> de tu Web.config.
+        // Cadena de conexión definida en Web.config.
         private readonly string conexion = ConfigurationManager.ConnectionStrings["ConexionSQL"].ConnectionString;
 
-        #endregion
+        #region Buscar usuario para login
 
-        #region Validacion de login
-
-        /// Busca un usuario activo en la base de datos comparando las credenciales ingresadas.
-        /// <param name="usuarioOCorreo">Dato ingresado en el formulario (soporta Username o Email).</param>
-        /// <param name="clave">Contraseña del usuario (idealmente pre-procesada como Hash desde el controlador).</param>
-        /// <returns>Retorna un objeto Usuario poblado si el login es exitoso; de lo contrario, retorna null.</returns>
-        public Usuario ValidarLogin(string usuarioOCorreo, string clave)
+        // Busca una cuenta usando nombre de usuario o correo.
+        // Aquí no se valida contraseña ni estado, solo se busca si la cuenta existe.
+        public Usuario ObtenerPorUsuarioOCorreo(string usuarioOCorreo)
         {
-            Usuario usuario = null;
-
-            // El bloque 'using' asegura la liberación automática de los recursos de la conexión (con.Dispose).
             using (SqlConnection con = new SqlConnection(conexion))
             {
-                // Se utiliza INNER JOIN para cargar la propiedad 'NombreRol' de una sola vez.
-                // La condición 'Estado = 1' impide directamente el acceso a cuentas desactivadas.
+                // Consulta el usuario junto con su rol.
+                // Se permite buscar por NombreUsuario o por Correo.
                 string query = @"
                     SELECT 
                         U.Id,
@@ -46,42 +34,39 @@ namespace PruebaSegundaUnidad.Repositories
                         U.FechaRegistro
                     FROM Usuarios U
                     INNER JOIN Roles R ON U.RolId = R.Id
-                    WHERE 
-                        (U.NombreUsuario = @usuarioOCorreo OR U.Correo = @usuarioOCorreo)
-                        AND U.ClaveHash = @clave
-                        AND U.Estado = 1";
+                    WHERE U.NombreUsuario = @UsuarioOCorreo
+                       OR U.Correo = @UsuarioOCorreo";
 
                 SqlCommand cmd = new SqlCommand(query, con);
 
-                // Parametrización estricta para evitar vulnerabilidades de Inyección SQL.
-                cmd.Parameters.AddWithValue("@usuarioOCorreo", usuarioOCorreo);
-                cmd.Parameters.AddWithValue("@clave", clave);
+                // Parámetro recibido desde el formulario de login.
+                cmd.Parameters.AddWithValue("@UsuarioOCorreo", usuarioOCorreo);
 
                 con.Open();
 
-                // SqlDataReader es el método más rápido (solo avance y lectura) para recuperar filas.
-                SqlDataReader reader = cmd.ExecuteReader();
-
-                // Si reader.Read() devuelve true, se encontró una coincidencia exacta en la BD.
-                if (reader.Read())
+                using (SqlDataReader reader = cmd.ExecuteReader())
                 {
-                    usuario = new Usuario
+                    // Si encuentra una fila, arma el objeto Usuario.
+                    if (reader.Read())
                     {
-                        Id = Convert.ToInt32(reader["Id"]),
-                        RolId = Convert.ToInt32(reader["RolId"]),
-                        NombreRol = reader["NombreRol"].ToString(),
-                        NombreCompleto = reader["NombreCompleto"].ToString(),
-                        NombreUsuario = reader["NombreUsuario"].ToString(),
-                        Correo = reader["Correo"].ToString(),
-                        ClaveHash = reader["ClaveHash"].ToString(),
-                        Estado = Convert.ToBoolean(reader["Estado"]),
-                        FechaRegistro = Convert.ToDateTime(reader["FechaRegistro"])
-                    };
+                        return new Usuario
+                        {
+                            Id = Convert.ToInt32(reader["Id"]),
+                            RolId = Convert.ToInt32(reader["RolId"]),
+                            NombreRol = reader["NombreRol"].ToString(),
+                            NombreCompleto = reader["NombreCompleto"].ToString(),
+                            NombreUsuario = reader["NombreUsuario"].ToString(),
+                            Correo = reader["Correo"].ToString(),
+                            ClaveHash = reader["ClaveHash"].ToString(),
+                            Estado = Convert.ToBoolean(reader["Estado"]),
+                            FechaRegistro = Convert.ToDateTime(reader["FechaRegistro"])
+                        };
+                    }
                 }
             }
 
-            // El controlador evaluará esto: si es null, muestra error; si tiene datos, crea la sesión.
-            return usuario;
+            // Si no encuentra usuario o correo, devuelve null.
+            return null;
         }
 
         #endregion
