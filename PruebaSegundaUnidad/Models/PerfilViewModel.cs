@@ -2,8 +2,8 @@
 
 namespace PruebaSegundaUnidad.Models
 {
-    // ViewModel usado en la vista Mi Perfil.
-    // Junta datos personales editables y campos para cambiar contraseña.
+    // ViewModel usado por la vista Mi Perfil.
+    // Junta los datos personales editables y los campos para cambiar contraseña.
     public class PerfilViewModel
     {
         #region Datos personales
@@ -27,6 +27,7 @@ namespace PruebaSegundaUnidad.Models
         #region Cambio de contraseña
 
         // Contraseña actual escrita por el usuario.
+        // Se valida manualmente en el controlador para este formulario.
         [DataType(DataType.Password)]
         public string ClaveActual { get; set; }
 
@@ -36,6 +37,7 @@ namespace PruebaSegundaUnidad.Models
         public string NuevaClave { get; set; }
 
         // Confirmación de la nueva contraseña.
+        // Compare revisa que coincida con NuevaClave.
         [DataType(DataType.Password)]
         [Compare("NuevaClave", ErrorMessage = "Las contraseñas no coinciden")]
         public string ConfirmarClave { get; set; }
