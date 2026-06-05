@@ -1,80 +1,161 @@
 ﻿@{
-    ViewBag.Title = "Dashboard Administrativo";
+    ViewBag.Title = "Dashboard";
+
+    var rol = Session["Rol"] != null ? Session["Rol"].ToString() : "";
+
+    var esAdministrador = ViewBag.EsAdministrador == true;
+    var esSoporte = ViewBag.EsSoporte == true;
+    var esUsuario = ViewBag.EsUsuario == true;
 }
 
-<div class="row">
-    <div class="col-md-12">
+<div class="dashboard-page">
 
-        <h2 class="page-header">Dashboard Principal</h2>
+    <div class="dashboard-hero">
 
-        @* Muestra el nombre del usuario conectado *@
-        <p class="lead">
-            Bienvenido/a, <strong>@Session["NombreCompleto"]</strong>
-        </p>
+        <div>
+            <span class="dashboard-etiqueta">
+                @if (esAdministrador)
+                {
+                    @:Panel administrativo
+                }
+                else if (esSoporte)
+                {
+                    @:Panel de soporte
+                }
+                else
+                {
+                    @:Panel personal
+                }
+            </span>
 
-    </div>
-</div>
+            <h2>Dashboard principal</h2>
 
-@* Solo Administrador y Soporte ven las métricas generales *@
-@if (Session["Rol"] != null &&
-    (Session["Rol"].ToString() == "Administrador" || Session["Rol"].ToString() == "Soporte"))
-{
-    <div class="row">
+            <p>
+                Bienvenido/a, <strong>@Session["NombreCompleto"]</strong>
+            </p>
 
-        <div class="col-md-3">
-            <div class="dash-card bg-primary-dark">
-                <h1>@(ViewBag.TotalUsuarios ?? 0)</h1>
-                <h4>Usuarios Activos</h4>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="dash-card bg-danger">
-                <h1>@(ViewBag.Pendientes ?? 0)</h1>
-                <h4>Tickets Pendientes</h4>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="dash-card bg-warning">
-                <h1 style="color: #FFFFFF;">@(ViewBag.EnProceso ?? 0)</h1>
-                <h4 style="color: #FFFFFF;">En Proceso</h4>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="dash-card bg-success">
-                <h1>@(ViewBag.Resueltas ?? 0)</h1>
-                <h4>Resueltas</h4>
-            </div>
+            @if (esAdministrador)
+            {
+                <small>Vista general del sistema, usuarios y solicitudes registradas.</small>
+            }
+            else if (esSoporte)
+            {
+                <small>Vista de seguimiento para revisar y actualizar tickets de soporte.</small>
+            }
+            else
+            {
+                <small>Vista personal para crear solicitudes y revisar el avance de tus tickets.</small>
+            }
         </div>
 
     </div>
-}
 
-<div class="row" style="margin-top: 20px;">
-    <div class="col-md-12">
+    <div class="row dashboard-metricas">
 
-        <h3>Accesos Rápidos</h3>
-        <hr />
+        <div class="col-md-3">
+            <div class="dash-card dash-morado">
+                <span>
+                    @if (esAdministrador)
+                    {
+                        @:Usuarios activos
+                    }
+                    else if (esSoporte)
+                    {
+                        @:Total tickets
+                    }
+                    else
+                    {
+                        @:Mis tickets
+                    }
+                </span>
 
-        @* Acceso al módulo principal de solicitudes *@
-        <a href="@Url.Action("Index", "Solicitudes")" class="btn btn-primary btn-lg">
-            Gestión de Soporte
-        </a>
+                <strong>
+                    @if (esAdministrador)
+                    {
+                        @(ViewBag.TotalUsuarios ?? 0)
+                    }
+                    else
+                    {
+                        @(ViewBag.TotalSolicitudes ?? 0)
+                    }
+                </strong>
+            </div>
+        </div>
 
-        @* Acceso al perfil del usuario conectado *@
-        <a href="@Url.Action("Index", "Perfil")" class="btn btn-default btn-lg">
-            Cambiar Contraseña
-        </a>
+        <div class="col-md-3">
+            <div class="dash-card dash-rojo">
+                <span>Pendientes</span>
+                <strong>@(ViewBag.Pendientes ?? 0)</strong>
+            </div>
+        </div>
 
-        @* Solo el Administrador puede gestionar usuarios *@
-        @if (Session["Rol"] != null && Session["Rol"].ToString() == "Administrador")
-        {
-            <a href="@Url.Action("Index", "Usuarios")" class="btn btn-danger btn-lg">
-                Gestión de Usuarios
+        <div class="col-md-3">
+            <div class="dash-card dash-naranja">
+                <span>En proceso</span>
+                <strong>@(ViewBag.EnProceso ?? 0)</strong>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="dash-card dash-verde">
+                <span>Resueltas</span>
+                <strong>@(ViewBag.Resueltas ?? 0)</strong>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="dashboard-panel">
+
+        <div class="dashboard-panel-header">
+            <div>
+                <h3>Accesos rápidos</h3>
+
+                @if (esAdministrador)
+                {
+                    <p>Administra solicitudes, usuarios y datos de tu cuenta.</p>
+                }
+                else if (esSoporte)
+                {
+                    <p>Revisa tickets y actualiza estados de atención.</p>
+                }
+                else
+                {
+                    <p>Crea una solicitud o revisa el estado de tus tickets.</p>
+                }
+            </div>
+        </div>
+
+        <div class="dashboard-accesos">
+
+            <a href="@Url.Action("Index", "Solicitudes")" class="dashboard-acceso acceso-soporte">
+                <span>Solicitudes</span>
+
+                @if (esUsuario)
+                {
+                    <small>Crear o revisar mis tickets</small>
+                }
+                else
+                {
+                    <small>Gestionar soporte técnico</small>
+                }
             </a>
-        }
+
+            <a href="@Url.Action("Index", "Perfil")" class="dashboard-acceso acceso-perfil">
+                <span>Mi perfil</span>
+                <small>Datos personales y contraseña</small>
+            </a>
+
+            @if (esAdministrador)
+            {
+                <a href="@Url.Action("Index", "Usuarios")" class="dashboard-acceso acceso-usuarios">
+                    <span>Usuarios</span>
+                    <small>Crear, editar y activar cuentas</small>
+                </a>
+            }
+
+        </div>
 
     </div>
+
 </div>

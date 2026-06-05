@@ -241,3 +241,21 @@
         margin-bottom: 20px;
     }
 }
+
+/* Ajuste del encabezado de perfil sin tarjeta de sesión */
+.perfil-hero {
+    justify-content: flex-start;
+}
+
+    .perfil-hero > div:first-child {
+        max-width: 900px;
+    }
+
+/* ==========================================================================
+   Encabezado de perfil unificado con el resto del sistema
+   ========================================================================== */
+
+.perfil-hero {
+    background: linear-gradient(135deg, #120d1c 0%, #211532 58%, #2b1f55 100%);
+    border: 1px solid #3f334d;
+}

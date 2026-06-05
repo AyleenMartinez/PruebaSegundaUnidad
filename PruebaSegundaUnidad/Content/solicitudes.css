@@ -728,3 +728,21 @@
     .estado-inicial-mini strong {
         color: #facc15;
     }
+
+/* Ajuste del encabezado de solicitudes sin tarjeta de usuario */
+.mesa-encabezado {
+    justify-content: flex-start;
+}
+
+    .mesa-encabezado > div:first-child {
+        max-width: 900px;
+    }
+
+/* ==========================================================================
+   Encabezado de solicitudes unificado con el resto del sistema
+   ========================================================================== */
+
+.mesa-encabezado {
+    background: linear-gradient(135deg, #120d1c 0%, #211532 58%, #2b1f55 100%);
+    border: 1px solid #3f334d;
+}

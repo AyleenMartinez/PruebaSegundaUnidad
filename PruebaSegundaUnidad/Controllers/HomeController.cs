@@ -5,7 +5,7 @@ using PruebaSegundaUnidad.Repositories;
 namespace PruebaSegundaUnidad.Controllers
 {
     // Controlador del dashboard principal.
-    // Muestra el inicio del sistema y prepara métricas para Administrador y Soporte.
+    // Prepara métricas diferentes según el rol del usuario conectado.
     public class HomeController : Controller
     {
         // Repositorio para consultar solicitudes de soporte.
@@ -25,23 +25,43 @@ namespace PruebaSegundaUnidad.Controllers
                 return RedirectToAction("Login", "Auth");
             }
 
-            // Solo Administrador y Soporte ven métricas generales del sistema.
-            if (Session["Rol"] != null &&
-                (Session["Rol"].ToString() == "Administrador" || Session["Rol"].ToString() == "Soporte"))
+            // Datos de sesión usados para adaptar el dashboard.
+            int usuarioId = (int)Session["UsuarioId"];
+            string rol = Session["Rol"] != null ? Session["Rol"].ToString() : "";
+
+            // Se obtienen todas las solicitudes desde la base.
+            var todasLasSolicitudes = _solicitudRepo.ObtenerTodas();
+
+            // Lista que se usará para calcular las métricas del dashboard.
+            var solicitudesDashboard = todasLasSolicitudes;
+
+            // Administrador y Soporte ven todas las solicitudes.
+            // Usuario normal solo ve sus propias solicitudes.
+            if (rol != "Administrador" && rol != "Soporte")
             {
-                // Se obtienen todas las solicitudes para calcular los indicadores del dashboard.
-                var todasLasSolicitudes = _solicitudRepo.ObtenerTodas();
-
-                // Se cuentan solicitudes según su estado.
-                ViewBag.Pendientes = todasLasSolicitudes.Count(s => s.NombreEstado == "Pendiente");
-                ViewBag.EnProceso = todasLasSolicitudes.Count(s => s.NombreEstado == "En proceso");
-                ViewBag.Resueltas = todasLasSolicitudes.Count(s => s.NombreEstado == "Resuelto");
-
-                // Se cuentan solo usuarios activos.
-                ViewBag.TotalUsuarios = _usuarioRepo.ObtenerTodos().Count(u => u.Estado == true);
+                solicitudesDashboard = todasLasSolicitudes
+                    .Where(s => s.UsuarioId == usuarioId)
+                    .ToList();
             }
 
-            // Se muestra la vista principal.
+            // Métricas comunes para todos los roles.
+            ViewBag.TotalSolicitudes = solicitudesDashboard.Count;
+            ViewBag.Pendientes = solicitudesDashboard.Count(s => s.IdEstado == 1 || s.NombreEstado == "Pendiente");
+            ViewBag.EnProceso = solicitudesDashboard.Count(s => s.IdEstado == 2 || s.NombreEstado == "En proceso");
+            ViewBag.Resueltas = solicitudesDashboard.Count(s => s.IdEstado == 3 || s.NombreEstado == "Resuelto");
+
+            // Solo el administrador ve cantidad de usuarios activos.
+            if (rol == "Administrador")
+            {
+                ViewBag.TotalUsuarios = _usuarioRepo.ObtenerTodos().Count(u => u.Estado);
+            }
+
+            // Variables para adaptar el texto y los accesos rápidos.
+            ViewBag.EsAdministrador = rol == "Administrador";
+            ViewBag.EsSoporte = rol == "Soporte";
+            ViewBag.EsUsuario = rol == "Usuario";
+
+            // Muestra la vista principal.
             return View();
         }
 

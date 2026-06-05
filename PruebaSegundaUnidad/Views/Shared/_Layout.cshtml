@@ -12,10 +12,7 @@
 
 <body>
     @{
-        /*
-            Se obtiene el controlador y la acción actual.
-            Esto sirve para saber en qué pantalla estamos.
-        */
+        // Se obtiene la ruta actual para saber en qué pantalla estamos.
         var controllerActual = ViewContext.RouteData.Values["controller"] != null
             ? ViewContext.RouteData.Values["controller"].ToString()
             : "";
@@ -24,29 +21,31 @@
             ? ViewContext.RouteData.Values["action"].ToString()
             : "";
 
-        /*
-            Antes: el botón "← Volver" aparecía también en el Dashboard Principal.
-            Ahora: se detecta Home/Index para ocultarlo ahí.
-        */
+        // El Dashboard principal no muestra botón Volver.
         var esDashboardPrincipal = controllerActual == "Home" && actionActual == "Index";
 
-        /*
-            Antes: el link "Iniciar sesión" aparecía incluso dentro del Login.
-            Ahora: se detecta Auth/Login para no mostrarlo cuando ya estamos en esa pantalla.
-        */
+        // En Login no se muestra el link Iniciar sesión.
         var esLogin = controllerActual == "Auth" && actionActual == "Login";
+
+        // Se revisa si hay sesión activa.
+        var haySesion = Session["UsuarioId"] != null;
+
+        // Rol del usuario conectado.
+        var rolUsuario = Session["Rol"] != null ? Session["Rol"].ToString() : "";
+
+        // Clases para marcar visualmente el menú activo.
+        var claseInicio = controllerActual == "Home" ? "nav-link nav-link-activo" : "nav-link";
+        var claseSolicitudes = controllerActual == "Solicitudes" ? "nav-link nav-link-activo" : "nav-link";
+        var clasePerfil = controllerActual == "Perfil" ? "nav-link nav-link-activo" : "nav-link";
+        var claseUsuarios = controllerActual == "Usuarios" ? "nav-link nav-link-activo" : "nav-link";
     }
 
-    @*
-        Layout principal del sistema.
-        Todo lo que está aquí se repite en las vistas que usan este layout.
-    *@
-
-    <nav class="navbar navbar-expand-sm navbar-dark bg-dark mb-4">
-        <div class="container">
+    @* Navbar general del sistema *@
+    <nav class="navbar navbar-expand-sm navbar-dark navbar-techhelp">
+        <div class="container nav-contenedor">
 
             @* Nombre del sistema *@
-            @Html.ActionLink("TechHelpWeb", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+            @Html.ActionLink("TechHelpWeb", "Index", "Home", new { area = "" }, new { @class = "navbar-brand marca-techhelp" })
 
             @* Botón responsive para pantallas pequeñas *@
             <button class="navbar-toggler"
@@ -56,73 +55,69 @@
                     aria-controls="menuPrincipal"
                     aria-expanded="false"
                     aria-label="Mostrar menú">
-
                 <span class="navbar-toggler-icon"></span>
             </button>
 
             <div class="collapse navbar-collapse" id="menuPrincipal">
 
-                <ul class="navbar-nav me-auto mb-2 mb-sm-0">
+                <ul class="navbar-nav menu-principal">
 
-                    @if (Session["UsuarioId"] != null)
+                    @if (haySesion)
                     {
-                        @* Menú principal visible solo para usuarios con sesión activa *@
+                        @* Menú principal visible solo con sesión activa *@
                         <li class="nav-item">
-                            @Html.ActionLink("Inicio", "Index", "Home", null, new { @class = "nav-link" })
+                            @Html.ActionLink("Inicio", "Index", "Home", null, new { @class = claseInicio })
                         </li>
 
                         <li class="nav-item">
-                            @Html.ActionLink("Solicitudes", "Index", "Solicitudes", null, new { @class = "nav-link" })
+                            @Html.ActionLink("Solicitudes", "Index", "Solicitudes", null, new { @class = claseSolicitudes })
                         </li>
 
                         <li class="nav-item">
-                            @Html.ActionLink("Mi Perfil", "Index", "Perfil", null, new { @class = "nav-link" })
+                            @Html.ActionLink("Mi Perfil", "Index", "Perfil", null, new { @class = clasePerfil })
                         </li>
 
-                        @* Usuarios solo aparece si el usuario conectado es Administrador *@
-                        if (Session["Rol"] != null && Session["Rol"].ToString() == "Administrador")
+                        @* Usuarios solo aparece para Administrador *@
+                        if (rolUsuario == "Administrador")
                         {
                             <li class="nav-item">
-                                @Html.ActionLink("Usuarios", "Index", "Usuarios", null, new { @class = "nav-link" })
+                                @Html.ActionLink("Usuarios", "Index", "Usuarios", null, new { @class = claseUsuarios })
                             </li>
                         }
                     }
 
                 </ul>
 
-                <ul class="navbar-nav ms-auto mb-2 mb-sm-0">
+                <ul class="navbar-nav menu-sesion">
 
-                    @if (Session["UsuarioId"] != null)
+                    @if (haySesion)
                     {
-                        @* Muestra nombre y rol del usuario conectado *@
-                        <li class="nav-item d-flex align-items-center me-3">
-                            <span class="navbar-text">
-                                @Session["NombreCompleto"]
+                        @* Muestra usuario y rol conectado *@
+                        <li class="nav-item nav-usuario">
+                            <span class="usuario-navbar">
+                                <strong>@Session["NombreCompleto"]</strong>
 
                                 @if (Session["Rol"] != null)
                                 {
-                                    <span>(@Session["Rol"])</span>
+                                    <small>@Session["Rol"]</small>
                                 }
                             </span>
                         </li>
 
-                        @* Cierre de sesión general para todas las vistas internas *@
+                        @* Cierre de sesión *@
                         <li class="nav-item">
-                            <a href="@Url.Action("Logout", "Auth")" class="btn btn-danger btn-sm">
+                            <a href="@Url.Action("Logout", "Auth")" class="btn btn-logout">
                                 Cerrar sesión
                             </a>
                         </li>
                     }
                     else
                     {
-                        @*
-                            Antes: "Iniciar sesión" aparecía incluso estando en /Auth/Login.
-                            Ahora: solo aparece si NO estamos ya en la pantalla de login.
-                        *@
+                        @* Link de login solo si no estamos ya en Login *@
                         if (!esLogin)
                         {
                             <li class="nav-item">
-                                @Html.ActionLink("Iniciar sesión", "Login", "Auth", null, new { @class = "nav-link" })
+                                @Html.ActionLink("Iniciar sesión", "Login", "Auth", null, new { @class = "nav-link nav-login" })
                             </li>
                         }
                     }
@@ -135,25 +130,22 @@
 
     <div class="container body-content">
 
-        @*
-            El botón "← Volver" aparece solo si hay sesión activa
-            y no estamos en el Dashboard Principal.
-        *@
-        @if (Session["UsuarioId"] != null && !esDashboardPrincipal)
+        @* Botón volver para vistas internas, excepto Dashboard *@
+        @if (haySesion && !esDashboardPrincipal)
         {
-            <div style="margin-bottom: 15px;">
-                <button type="button" class="btn btn-default btn-sm" onclick="volverPaginaAnterior()">
+            <div class="volver-contenedor">
+                <button type="button" class="btn btn-volver" onclick="volverPaginaAnterior()">
                     ← Volver
                 </button>
             </div>
         }
 
-        @* Aquí se carga el contenido específico de cada vista *@
+        @* Aquí se carga cada vista *@
         @RenderBody()
 
-        <hr />
+        <hr class="footer-linea" />
 
-        <footer>
+        <footer class="footer-techhelp">
             <p>&copy; @DateTime.Now.Year - TechHelpWeb</p>
         </footer>
 
@@ -166,18 +158,18 @@
         // Función general para volver desde vistas internas.
         function volverPaginaAnterior() {
 
-            // Si el navegador tiene historial, vuelve a la página anterior.
+            // Si hay historial, vuelve a la página anterior.
             if (window.history.length > 1) {
                 window.history.back();
             }
 
-            // Si no hay historial suficiente, vuelve al dashboard principal.
+            // Si no hay historial, vuelve al dashboard.
             else {
                 window.location.href = '@Url.Action("Index", "Home")';
             }
         }
     </script>
 
-    @RenderSection("scripts", required: false)
+    @RenderSection("Scripts", required: false)
 </body>
 </html>
