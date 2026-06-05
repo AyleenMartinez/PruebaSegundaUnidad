@@ -9,43 +9,50 @@
 let solicitudesCargadas = [];
 
 // Id del usuario conectado.
-// Se lee desde el input hidden UsuarioActualId de la vista.
 let usuarioActualId = 0;
 
 // Rol del usuario conectado.
-// Se lee desde el input hidden RolUsuario de la vista.
 let rolUsuario = "";
 
 
-// Cuando la página termina de cargar, se inicia el módulo.
+// Se ejecuta cuando la página ya terminó de cargar.
 document.addEventListener("DOMContentLoaded", function () {
 
-    // Se leen los datos de sesión que quedaron disponibles en la vista.
-    usuarioActualId = parseInt(document.getElementById("UsuarioActualId").value);
-    rolUsuario = document.getElementById("RolUsuario").value;
+    // Se leen datos de sesión desde los input hidden de la vista.
+    const inputUsuario = document.getElementById("UsuarioActualId");
+    const inputRol = document.getElementById("RolUsuario");
 
-    // Carga inicial de solicitudes.
+    if (inputUsuario != null) {
+        usuarioActualId = parseInt(inputUsuario.value);
+    }
+
+    if (inputRol != null) {
+        rolUsuario = inputRol.value;
+    }
+
+    // Se carga la tabla al entrar a la vista.
     cargarSolicitudes();
 
-    // Formulario de nueva solicitud.
+    // Se conecta el formulario si existe en la vista.
     const formulario = document.getElementById("frmNuevaSolicitud");
 
-    // Campo de descripción usado para contar caracteres.
+    if (formulario != null) {
+        formulario.addEventListener("submit", function (e) {
+            e.preventDefault();
+            crearSolicitud();
+        });
+    }
+
+    // Se conecta el contador de descripción si existe en la vista.
     const campoDescripcion = document.getElementById("Descripcion");
 
-    // Evita que el formulario recargue la página y lo envía por API.
-    formulario.addEventListener("submit", function (e) {
-        e.preventDefault();
-        crearSolicitud();
-    });
+    if (campoDescripcion != null) {
+        campoDescripcion.addEventListener("input", function () {
+            actualizarContadorDescripcion();
+        });
 
-    // Actualiza el contador mientras el usuario escribe.
-    campoDescripcion.addEventListener("input", function () {
         actualizarContadorDescripcion();
-    });
-
-    // Deja el contador inicializado al cargar.
-    actualizarContadorDescripcion();
+    }
 });
 
 
@@ -55,7 +62,7 @@ function puedeGestionarSolicitudes() {
 }
 
 
-// Filtra las solicitudes según el rol del usuario conectado.
+// Filtra solicitudes según el rol del usuario.
 function filtrarSolicitudesSegunRol(lista) {
 
     // Administrador y Soporte ven todas las solicitudes.
@@ -63,16 +70,54 @@ function filtrarSolicitudesSegunRol(lista) {
         return lista;
     }
 
-    // Usuario normal solo ve las solicitudes creadas por su propio Id.
+    // Usuario normal solo ve sus propias solicitudes.
     return lista.filter(function (solicitud) {
         return parseInt(solicitud.UsuarioId) === usuarioActualId;
     });
 }
 
 
-// Muestra mensajes Bootstrap arriba del formulario.
+// Actualiza las tarjetas resumen, pero no rompe si no existen en la vista.
+function actualizarResumen(lista) {
+    const total = lista.length;
+
+    const pendientes = lista.filter(function (s) {
+        return parseInt(s.IdEstado) === 1 || s.NombreEstado === "Pendiente";
+    }).length;
+
+    const proceso = lista.filter(function (s) {
+        return parseInt(s.IdEstado) === 2 || s.NombreEstado === "En proceso";
+    }).length;
+
+    const resueltas = lista.filter(function (s) {
+        return parseInt(s.IdEstado) === 3 || s.NombreEstado === "Resuelto";
+    }).length;
+
+    setTextoResumen("resumenTotal", total);
+    setTextoResumen("resumenPendientes", pendientes);
+    setTextoResumen("resumenProceso", proceso);
+    setTextoResumen("resumenResueltas", resueltas);
+}
+
+
+// Cambia el texto de una tarjeta resumen solo si existe.
+function setTextoResumen(id, valor) {
+    const elemento = document.getElementById(id);
+
+    if (elemento != null) {
+        elemento.textContent = valor;
+    }
+}
+
+
+// Muestra mensajes visuales.
 function mostrarAlerta(mensaje, tipo) {
     const container = document.getElementById("alertasContainer");
+
+    if (container == null) {
+        alert(mensaje);
+        return;
+    }
 
     container.innerHTML = `
         <div class="alert alert-${tipo}">
@@ -86,7 +131,7 @@ function mostrarAlerta(mensaje, tipo) {
 }
 
 
-// Limpia texto antes de mostrarlo dentro de la tabla.
+// Limpia texto antes de mostrarlo en HTML.
 function limpiarTexto(valor) {
     if (valor === null || valor === undefined) {
         return "";
@@ -119,46 +164,68 @@ function obtenerBadgePrioridad(nombrePrioridad) {
 
 // Devuelve una etiqueta visual para estado.
 function obtenerBadgeEstado(idEstado, nombreEstado) {
-    if (idEstado === 1) {
-        return '<span class="estado-badge estado-pendiente">' + limpiarTexto(nombreEstado) + '</span>';
+    const estado = parseInt(idEstado);
+
+    if (estado === 1) {
+        return '<span class="estado-badge estado-pendiente">' + limpiarTexto(nombreEstado || "Pendiente") + '</span>';
     }
 
-    if (idEstado === 2) {
-        return '<span class="estado-badge estado-proceso">' + limpiarTexto(nombreEstado) + '</span>';
+    if (estado === 2) {
+        return '<span class="estado-badge estado-proceso">' + limpiarTexto(nombreEstado || "En proceso") + '</span>';
     }
 
-    return '<span class="estado-badge estado-resuelto">' + limpiarTexto(nombreEstado) + '</span>';
+    return '<span class="estado-badge estado-resuelto">' + limpiarTexto(nombreEstado || "Resuelto") + '</span>';
 }
 
 
 // GET /api/solicitudes
 // Carga las solicitudes desde la API y las dibuja en la tabla.
 function cargarSolicitudes() {
+    const tbody = document.querySelector("#tablaSolicitudes tbody");
+
+    if (tbody == null) {
+        console.error("No se encontró #tablaSolicitudes tbody en la vista.");
+        return;
+    }
+
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="6" class="text-center text-muted">
+                Cargando tickets...
+            </td>
+        </tr>
+    `;
+
     fetch("/api/solicitudes")
         .then(function (response) {
             if (!response.ok) {
                 throw new Error("No se pudieron cargar las solicitudes.");
             }
 
-            // Convierte la respuesta JSON en datos que JavaScript puede usar.
             return response.json();
         })
         .then(function (data) {
 
-            // Se filtra la lista según el rol antes de mostrarla.
-            const solicitudesFiltradas = filtrarSolicitudesSegunRol(data);
+            // Asegura que lo recibido sea una lista.
+            const lista = Array.isArray(data) ? data : [];
 
-            // Se guarda la lista visible para usarla al abrir el modal.
+            // Filtra según rol.
+            const solicitudesFiltradas = filtrarSolicitudesSegunRol(lista);
+
+            // Guarda lista visible para el modal.
             solicitudesCargadas = solicitudesFiltradas;
 
-            const tbody = document.querySelector("#tablaSolicitudes tbody");
+            // Actualiza tarjetas resumen si existen.
+            actualizarResumen(solicitudesFiltradas);
+
+            // Limpia la tabla.
             tbody.innerHTML = "";
 
             if (solicitudesFiltradas.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="7" class="text-center text-muted">
-                            No hay solicitudes registradas para este usuario.
+                        <td colspan="6" class="text-center text-muted">
+                            No hay tickets visibles para este usuario.
                         </td>
                     </tr>
                 `;
@@ -167,13 +234,16 @@ function cargarSolicitudes() {
 
             solicitudesFiltradas.forEach(function (sol) {
                 const fecha = new Date(sol.FechaRegistro).toLocaleDateString("es-CL");
+
                 const badgePrioridad = obtenerBadgePrioridad(sol.NivelPrioridad);
                 const badgeEstado = obtenerBadgeEstado(sol.IdEstado, sol.NombreEstado);
 
                 let botones = `
                     <div class="acciones-compactas">
 
-                        <button type="button" class="btn btn-info btn-xs btn-accion" onclick="verDetalle(${sol.Id})">
+                        <button type="button"
+                                class="btn btn-info btn-xs btn-accion"
+                                onclick="verDetalle(${sol.Id})">
                             Ver
                         </button>
                 `;
@@ -185,26 +255,26 @@ function cargarSolicitudes() {
                                 data-estado-original="${sol.IdEstado}"
                                 onchange="marcarCambioEstado(${sol.Id})">
 
-                            <option value="1" ${sol.IdEstado === 1 ? "selected" : ""}>Pendiente</option>
-                            <option value="2" ${sol.IdEstado === 2 ? "selected" : ""}>En proceso</option>
-                            <option value="3" ${sol.IdEstado === 3 ? "selected" : ""}>Resuelto</option>
+                            <option value="1" ${parseInt(sol.IdEstado) === 1 ? "selected" : ""}>Pendiente</option>
+                            <option value="2" ${parseInt(sol.IdEstado) === 2 ? "selected" : ""}>En proceso</option>
+                            <option value="3" ${parseInt(sol.IdEstado) === 3 ? "selected" : ""}>Resuelto</option>
                         </select>
 
                         <button type="button"
                                 id="btn-actualizar-${sol.Id}"
                                 class="btn btn-warning btn-xs btn-accion"
                                 onclick="guardarEstadoDesdeSelect(${sol.Id})">
-                            Actualizar
+                            Guardar
                         </button>
 
                         <button type="button"
                                 class="btn btn-danger btn-xs btn-accion"
                                 onclick="eliminarSolicitud(${sol.Id})">
-                            Eliminar
+                            Quitar
                         </button>
 
                         <span id="aviso-cambio-${sol.Id}" class="aviso-cambio-pendiente" style="display:none;">
-                            Cambio sin guardar
+                            Cambio pendiente
                         </span>
                     `;
                 }
@@ -213,18 +283,40 @@ function cargarSolicitudes() {
 
                 tbody.innerHTML += `
                     <tr id="fila-solicitud-${sol.Id}">
-                        <td>#${sol.Id}</td>
-                        <td>${fecha}</td>
+                        <td>
+                            <span class="ticket-numero">#${sol.Id}</span>
+                            <span class="ticket-fecha">${fecha}</span>
+                        </td>
+
                         <td>${limpiarTexto(sol.NombreUsuario)}</td>
-                        <td>${limpiarTexto(sol.DescripcionProblema)}</td>
+
+                        <td>
+                            <span class="categoria-area">${limpiarTexto(sol.NombreArea)}</span>
+                            <span class="categoria-problema">${limpiarTexto(sol.DescripcionProblema)}</span>
+                        </td>
+
                         <td>${badgePrioridad}</td>
+
                         <td>${badgeEstado}</td>
+
                         <td>${botones}</td>
                     </tr>
                 `;
             });
         })
-        .catch(function () {
+        .catch(function (error) {
+            console.error(error);
+
+            actualizarResumen([]);
+
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center text-danger">
+                        Error al cargar los tickets. Revisa la consola o la API.
+                    </td>
+                </tr>
+            `;
+
             mostrarAlerta("Error al cargar las solicitudes.", "danger");
         });
 }
@@ -233,7 +325,7 @@ function cargarSolicitudes() {
 // Muestra el detalle de una solicitud en el modal.
 function verDetalle(id) {
     const solicitud = solicitudesCargadas.find(function (item) {
-        return item.Id === id;
+        return parseInt(item.Id) === parseInt(id);
     });
 
     if (!solicitud) {
@@ -280,11 +372,16 @@ function cerrarModalDetalle() {
 }
 
 
-// Actualiza el contador de caracteres de la descripción.
+// Actualiza contador de descripción.
 function actualizarContadorDescripcion() {
-    const descripcion = document.getElementById("Descripcion").value.trim();
+    const campo = document.getElementById("Descripcion");
     const contador = document.getElementById("contadorDescripcion");
 
+    if (campo == null || contador == null) {
+        return;
+    }
+
+    const descripcion = campo.value.trim();
     const cantidad = descripcion.length;
     const minimo = 10;
 
@@ -302,11 +399,30 @@ function actualizarContadorDescripcion() {
 
 
 // POST /api/solicitudes
-// Crea una nueva solicitud enviando JSON a la API.
+// Crea una nueva solicitud.
 function crearSolicitud() {
     const descripcion = document.getElementById("Descripcion").value.trim();
 
+    const idArea = parseInt(document.getElementById("IdArea").value);
+    const idTipoProblema = parseInt(document.getElementById("IdTipoProblema").value);
+    const idPrioridad = parseInt(document.getElementById("IdPrioridad").value);
+
     actualizarContadorDescripcion();
+
+    if (isNaN(idArea)) {
+        mostrarAlerta("Debes seleccionar un área.", "danger");
+        return;
+    }
+
+    if (isNaN(idTipoProblema)) {
+        mostrarAlerta("Debes seleccionar un tipo de problema.", "danger");
+        return;
+    }
+
+    if (isNaN(idPrioridad)) {
+        mostrarAlerta("Debes seleccionar una prioridad.", "danger");
+        return;
+    }
 
     if (descripcion.length < 10) {
         mostrarAlerta("La descripción debe tener al menos 10 caracteres.", "danger");
@@ -315,9 +431,9 @@ function crearSolicitud() {
 
     const nuevaSolicitud = {
         UsuarioId: usuarioActualId,
-        IdArea: parseInt(document.getElementById("IdArea").value),
-        IdTipoProblema: parseInt(document.getElementById("IdTipoProblema").value),
-        IdPrioridad: parseInt(document.getElementById("IdPrioridad").value),
+        IdArea: idArea,
+        IdTipoProblema: idTipoProblema,
+        IdPrioridad: idPrioridad,
         Descripcion: descripcion
     };
 
@@ -337,11 +453,11 @@ function crearSolicitud() {
 
             actualizarContadorDescripcion();
 
-            mostrarAlerta("Solicitud registrada correctamente.", "success");
+            mostrarAlerta("Requerimiento registrado correctamente.", "success");
             cargarSolicitudes();
         })
         .catch(function () {
-            mostrarAlerta("Error al registrar la solicitud. Revisa los datos.", "danger");
+            mostrarAlerta("Error al registrar el requerimiento. Revisa los datos.", "danger");
         });
 }
 
@@ -366,7 +482,7 @@ function marcarCambioEstado(id) {
         selectEstado.classList.remove("select-cambio-pendiente");
         fila.classList.remove("fila-cambio-pendiente");
         aviso.style.display = "none";
-        boton.textContent = "Actualizar";
+        boton.textContent = "Guardar";
     }
 }
 
@@ -417,7 +533,7 @@ function actualizarEstado(id, nuevoEstadoId) {
 // DELETE /api/solicitudes/{id}
 // Elimina una solicitud después de confirmar.
 function eliminarSolicitud(id) {
-    const confirmar = confirm("¿Seguro que deseas eliminar esta solicitud?");
+    const confirmar = confirm("¿Seguro que deseas quitar este requerimiento?");
 
     if (!confirmar) {
         return;
@@ -431,10 +547,10 @@ function eliminarSolicitud(id) {
                 throw new Error("Error al eliminar.");
             }
 
-            mostrarAlerta("Solicitud eliminada correctamente.", "warning");
+            mostrarAlerta("Requerimiento eliminado correctamente.", "warning");
             cargarSolicitudes();
         })
         .catch(function () {
-            mostrarAlerta("No se pudo eliminar la solicitud.", "danger");
+            mostrarAlerta("No se pudo eliminar el requerimiento.", "danger");
         });
 }

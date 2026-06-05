@@ -1,156 +1,234 @@
 ﻿@using System.Collections.Generic
 @model PruebaSegundaUnidad.Models.SolicitudSoporte
+
 @{
-    ViewBag.Title = "Solicitudes de Soporte";
+    ViewBag.Title = "Mesa de Ayuda";
     var areas = ViewBag.Areas as List<PruebaSegundaUnidad.Models.AreaSolicitante>;
     var tiposProblema = ViewBag.TiposProblema as List<PruebaSegundaUnidad.Models.TipoProblema>;
 }
 
-@* NOTA: Agregamos el parámetro ?v=4 para obligar al navegador a vaciar el caché y cargar los nuevos estilos CSS *@
-<link href="@Url.Content("~/Content/solicitudes.css?v=4")" rel="stylesheet" />
-<link href="@Url.Content("~/Content/usuarios.css?v=4")" rel="stylesheet" />
+<link href="@Url.Content("~/Content/solicitudes.css?v=6")" rel="stylesheet" />
 
 <input type="hidden" id="UsuarioActualId" value="@Session["UsuarioId"]" />
 <input type="hidden" id="RolUsuario" value="@Session["Rol"]" />
 
-<div class="row">
-    <div class="col-md-12">
-        <h2 style="color: #ffffff; font-weight: 800; margin-bottom: 25px;">
-            Gestión de Soporte Técnico
-        </h2>
-        <div id="alertasContainer"></div>
+<div class="mesa-ayuda">
+
+    <div class="mesa-encabezado">
+        <div>
+            <span class="mesa-etiqueta">TechHelpWeb</span>
+            <h2>Centro de Atención TI</h2>
+            <p>
+                Registra requerimientos técnicos, revisa su seguimiento y administra estados según tu rol.
+            </p>
+        </div>
+
+        <div class="mesa-usuario">
+            <span>Usuario conectado</span>
+            <strong>@Session["NombreCompleto"]</strong>
+            <small>@Session["Rol"]</small>
+        </div>
     </div>
-</div>
 
-<div class="row">
-    @* --- MÓDULO IZQUIERDO: FORMULARIO DE INGRESO --- *@
-    <div class="col-md-4">
-        @* Se limpiaron las clases predeterminadas de Bootstrap para dejar actuar a nuestro CSS corporativo *@
-        <div class="panel panel-soporte">
-            <div class="panel-heading">Nueva solicitud</div>
-            <div class="panel-body">
-                <form id="frmNuevaSolicitud">
+    <div id="alertasContainer"></div>
 
-                    <div class="form-group solicitud-form-group">
-                        <label>Solicitante</label>
-                        <input type="text" class="form-control" value="@Session["NombreCompleto"]" readonly />
-                    </div>
+    <div class="resumen-solicitudes">
+        <div class="resumen-card">
+            <span>Total visibles</span>
+            <strong id="resumenTotal">0</strong>
+        </div>
 
-                    <div class="form-group solicitud-form-group">
-                        <label>Área <span class="text-danger">*</span></label>
-                        <select class="form-control" id="IdArea" required>
-                            <option value="">-- Seleccione área --</option>
-                            @if (areas != null)
+        <div class="resumen-card">
+            <span>Pendientes</span>
+            <strong id="resumenPendientes">0</strong>
+        </div>
+
+        <div class="resumen-card">
+            <span>En proceso</span>
+            <strong id="resumenProceso">0</strong>
+        </div>
+
+        <div class="resumen-card">
+            <span>Resueltas</span>
+            <strong id="resumenResueltas">0</strong>
+        </div>
+    </div>
+
+    <div class="bloque-registro">
+        <div class="bloque-titulo">
+            <div>
+                <h3>Registrar requerimiento técnico</h3>
+                <p>Completa los datos principales del problema para generar una nueva solicitud.</p>
+            </div>
+        </div>
+
+        <form id="frmNuevaSolicitud">
+
+            <div class="row">
+
+                <div class="col-md-4 form-group solicitud-form-group">
+                    <label>Solicitante</label>
+                    <input type="text" class="form-control" value="@Session["NombreCompleto"]" readonly />
+                </div>
+
+                <div class="col-md-4 form-group solicitud-form-group">
+                    <label>Área <span class="text-danger">*</span></label>
+
+                    <select class="form-control" id="IdArea" required>
+                        <option value="">Seleccione área</option>
+
+                        @if (areas != null)
+                        {
+                            foreach (var area in areas)
                             {
-                                foreach (var area in areas)
-                                {
-                                    <option value="@area.Id">@area.NombreArea</option>
-                                }
+                                <option value="@area.Id">@area.NombreArea</option>
                             }
-                        </select>
-                    </div>
+                        }
+                    </select>
+                </div>
 
-                    <div class="form-group solicitud-form-group">
-                        <label>Tipo de problema <span class="text-danger">*</span></label>
-                        <select class="form-control" id="IdTipoProblema" required>
-                            <option value="">-- Seleccione problema --</option>
-                            @if (tiposProblema != null)
+                <div class="col-md-4 form-group solicitud-form-group">
+                    <label>Tipo de problema <span class="text-danger">*</span></label>
+
+                    <select class="form-control" id="IdTipoProblema" required>
+                        <option value="">Seleccione problema</option>
+
+                        @if (tiposProblema != null)
+                        {
+                            foreach (var tipo in tiposProblema)
                             {
-                                foreach (var tipo in tiposProblema)
-                                {
-                                    <option value="@tipo.Id">@tipo.NombreTipoProblema</option>
-                                }
+                                <option value="@tipo.Id">@tipo.NombreTipoProblema</option>
                             }
-                        </select>
-                    </div>
+                        }
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-8 form-group solicitud-form-group">
+                    <label>Descripción <span class="text-danger">*</span></label>
+
+                    <textarea class="form-control"
+                              id="Descripcion"
+                              rows="4"
+                              minlength="10"
+                              required
+                              placeholder="Describe el problema con al menos 10 caracteres"></textarea>
+
+                    <span id="contadorDescripcion" class="contador-descripcion">
+                        0/10 caracteres mínimos
+                    </span>
+                </div>
+
+                <div class="col-md-4">
 
                     <div class="form-group solicitud-form-group">
                         <label>Prioridad <span class="text-danger">*</span></label>
+
                         <select class="form-control" id="IdPrioridad" required>
                             <option value="1">Baja</option>
                             <option value="2" selected>Media</option>
                             <option value="3">Alta</option>
                         </select>
-                        <div class="campo-ayuda" style="color: #cbd5e1; font-size: 0.85rem; margin-top: 5px; margin-left: 10px;">
-                            Baja: menos urgente | Media: normal | Alta: requiere atención rápida
-                        </div>
+
+                        <small class="campo-ayuda">
+                            Baja: puede esperar | Media: atención normal | Alta: atención rápida
+                        </small>
                     </div>
 
-                    <div class="form-group solicitud-form-group">
-                        <label>Descripción <span class="text-danger">*</span></label>
-                        <textarea class="form-control" id="Descripcion" rows="4" minlength="10" required placeholder="Describe el problema..."></textarea>
-                        <span id="contadorDescripcion" style="color: #cbd5e1; margin-top: 5px; display: block; margin-left: 10px;">
-                            0/10 caracteres mínimos
-                        </span>
+                    <div class="estado-inicial-mini">
+                        Estado inicial: <strong>Pendiente</strong>
                     </div>
 
-                    <button type="submit" class="btn btn-solicitud btn-block">Guardar solicitud</button>
-                </form>
-            </div>
-        </div>
-    </div>
+                    <button type="submit" class="btn btn-solicitud btn-block">
+                        Enviar requerimiento
+                    </button>
 
-    @* --- MÓDULO DERECHO: HISTORIAL Y TABLA --- *@
-    <div class="col-md-8">
-        <div class="panel panel-soporte">
-            <div class="panel-heading">Historial de solicitudes</div>
-            <div class="panel-body">
-                <div class="table-responsive">
-                    @* Se eliminaron 'table-striped' y 'table-hover' para garantizar el fondo oscuro *@
-                    <table class="table tabla-solicitudes" id="tablaSolicitudes">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Fecha</th>
-                                <th>Usuario</th>
-                                <th>Problema</th>
-                                <th>Prioridad</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @* Inyección mediante JS *@
-                        </tbody>
-                    </table>
                 </div>
+
             </div>
-        </div>
+
+        </form>
     </div>
+
+    <div class="bloque-historial">
+
+        <div class="bloque-titulo">
+            <div>
+                <h3>Seguimiento de tickets</h3>
+                <p>Listado de solicitudes registradas y su estado actual.</p>
+            </div>
+
+            <button type="button" class="btn btn-recargar" onclick="cargarSolicitudes()">
+                Actualizar listado
+            </button>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table tabla-solicitudes" id="tablaSolicitudes">
+                <thead>
+                    <tr>
+                        <th>Ticket</th>
+                        <th>Solicitante</th>
+                        <th>Categoría</th>
+                        <th>Prioridad</th>
+                        <th>Estado</th>
+                        <th>Gestión</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @* Scripts/app/solicitudes.js inserta aquí las solicitudes *@
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
 </div>
 
-@* --- VENTANA MODAL ADAPTADA A MODO OSCURO --- *@
-<div class="modal fade" id="modalDetalleSolicitud" tabindex="-1" role="dialog">
+<div class="modal fade" id="modalDetalleSolicitud" tabindex="-1" role="dialog" aria-labelledby="tituloModalDetalle">
     <div class="modal-dialog" role="document">
-        @* Sobrescritura inline del Modal Blanco de Bootstrap hacia Dark Mode *@
-        <div class="modal-content" style="background-color: #161022; color: #ffffff; border: 1px solid #2d2438; border-radius: 16px;">
-            <div class="modal-header" style="border-bottom: 1px solid #3f334d;">
-                <button type="button" class="close" onclick="cerrarModalDetalle()" style="color: #ffffff; opacity: 0.8; text-shadow: none;">
+        <div class="modal-content modal-solicitud">
+
+            <div class="modal-header">
+                <button type="button" class="close" onclick="cerrarModalDetalle()" aria-label="Cerrar">
                     <span aria-hidden="true">&times;</span>
                 </button>
-                <h4 class="modal-title" style="font-weight: 700; color: #ffffff;">Detalle de la solicitud</h4>
+
+                <h4 class="modal-title" id="tituloModalDetalle">
+                    Ficha del requerimiento
+                </h4>
             </div>
+
             <div class="modal-body">
-                <p><strong>ID:</strong> <span id="detalleId"></span></p>
-                <p><strong>Solicitante:</strong> <span id="detalleUsuario"></span></p>
-                <p><strong>Área:</strong> <span id="detalleArea"></span></p>
-                <p><strong>Problema:</strong> <span id="detalleProblema"></span></p>
-                <p><strong>Prioridad:</strong> <span id="detallePrioridad"></span></p>
-                <p><strong>Estado:</strong> <span id="detalleEstado"></span></p>
-                <hr style="border-top: 1px solid #3f334d;" />
+                <div class="detalle-grid">
+                    <p><strong>Ticket:</strong> <span id="detalleId"></span></p>
+                    <p><strong>Solicitante:</strong> <span id="detalleUsuario"></span></p>
+                    <p><strong>Área:</strong> <span id="detalleArea"></span></p>
+                    <p><strong>Problema:</strong> <span id="detalleProblema"></span></p>
+                    <p><strong>Prioridad:</strong> <span id="detallePrioridad"></span></p>
+                    <p><strong>Estado:</strong> <span id="detalleEstado"></span></p>
+                </div>
+
+                <hr />
+
                 <p><strong>Descripción:</strong></p>
-                @* Contenedor interno que simula un cuadro de texto protegido *@
-                <div id="detalleDescripcion" style="background-color: #0b0811; padding: 15px; border-radius: 8px; border: 1px solid #3f334d;"></div>
+                <div id="detalleDescripcion" class="descripcion-modal"></div>
             </div>
-            <div class="modal-footer" style="border-top: 1px solid #3f334d;">
-                <button type="button" onclick="cerrarModalDetalle()" style="background-color: #3f334d; color: #ffffff; border: none; border-radius: 50px; padding: 8px 20px;">
-                    Cerrar
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cerrar-modal" onclick="cerrarModalDetalle()">
+                    Cerrar ficha
                 </button>
             </div>
+
         </div>
     </div>
 </div>
 
 @section Scripts {
-    <script src="@Url.Content("~/Scripts/app/solicitudes.js?v=4")"></script>
+    <script src="@Url.Content("~/Scripts/app/solicitudes.js?v=7")"></script>
 }
