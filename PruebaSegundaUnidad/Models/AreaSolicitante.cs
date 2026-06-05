@@ -1,31 +1,35 @@
 ﻿namespace PruebaSegundaUnidad.Models
 {
-    // Estas clases representan las entidades de solo lectura de la base de datos.
-    // Se utilizarán principalmente para cargar las opciones en los formularios.
-
-    /// Representa los departamentos o áreas de la institución que pueden generar una solicitud.
-    /// (Ejemplo: Administración, Docencia, Laboratorio).
+    // Representa un área o departamento que puede generar una solicitud.
+    // Ejemplo: Administración, Docencia o Laboratorio.
     public class AreaSolicitante
     {
-        /// Identificador único del área (Llave Primaria).
+        // Id del área en la base de datos.
         public int Id { get; set; }
 
-        /// Nombre descriptivo del área solicitante.
+        // Nombre descriptivo del área.
         public string NombreArea { get; set; }
     }
-    /// Establece los niveles de urgencia o SLA para la atención del ticket.
-    /// (Ejemplo: Baja, Media, Alta).
+
+    // Representa el nivel de urgencia de una solicitud.
+    // Ejemplo: Baja, Media o Alta.
     public class Prioridad
     {
+        // Id de la prioridad en la base de datos.
         public int Id { get; set; }
+
+        // Nombre o nivel de la prioridad.
         public string NivelPrioridad { get; set; }
     }
 
-    /// Indica la fase actual en la que se encuentra la solicitud de soporte.
-    /// (Ejemplo: Pendiente, En proceso, Resuelto).
+    // Representa el estado actual de una solicitud.
+    // Ejemplo: Pendiente, En proceso o Resuelto.
     public class EstadoSolicitud
     {
+        // Id del estado en la base de datos.
         public int Id { get; set; }
+
+        // Nombre descriptivo del estado.
         public string NombreEstado { get; set; }
     }
 }

@@ -1,15 +1,15 @@
 ﻿namespace PruebaSegundaUnidad.Models
 {
-    /// Modelo de catálogo que representa los niveles de acceso dentro del sistema.
-    /// Mapea directamente a la tabla 'Roles' de la base de datos.
+    // Representa un rol del sistema.
+    // Se usa para controlar permisos y mostrar opciones en formularios.
     public class Rol
     {
-        /// Identificador único del rol (Ejemplo: 1, 2, 3).
-        /// Corresponde a la llave primaria de la base de datos.
+        // Id del rol en la base de datos.
+        // Ejemplo: 1, 2 o 3.
         public int Id { get; set; }
 
-        /// Nombre descriptivo del nivel de acceso.
-        /// (Ejemplo: Administrador, Soporte, Usuario).
+        // Nombre del rol.
+        // Ejemplo: Administrador, Soporte o Usuario.
         public string NombreRol { get; set; }
     }
 }

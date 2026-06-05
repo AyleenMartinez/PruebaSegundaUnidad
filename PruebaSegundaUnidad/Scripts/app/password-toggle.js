@@ -1,6 +1,7 @@
 ﻿/* ==========================================================
    password-toggle.js
    Permite mostrar u ocultar campos de contraseña.
+   Se reutiliza en Login, Perfil y Crear Usuario.
    ========================================================== */
 
 
@@ -15,24 +16,24 @@ document.addEventListener("DOMContentLoaded", function () {
         // Agrega el evento click al botón.
         boton.addEventListener("click", function () {
 
-            // Obtiene el id del input asociado.
+            // Lee el id del input asociado desde data-target.
             var idCampo = boton.getAttribute("data-target");
 
-            // Busca el input de contraseña.
+            // Busca el campo de contraseña correspondiente.
             var campo = document.getElementById(idCampo);
 
-            // Si no encuentra el input, no hace nada.
+            // Si no encuentra el campo, no hace nada.
             if (campo == null) {
                 return;
             }
 
-            // Si el campo está oculto como password, lo muestra como texto.
+            // Si la contraseña está oculta, la muestra como texto.
             if (campo.type === "password") {
                 campo.type = "text";
                 boton.textContent = "Ocultar";
             }
 
-            // Si el campo está visible, lo vuelve a ocultar.
+            // Si la contraseña está visible, la vuelve a ocultar.
             else {
                 campo.type = "password";
                 boton.textContent = "Ver";
