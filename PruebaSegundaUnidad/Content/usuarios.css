@@ -1,39 +1,140 @@
-﻿/* ==========================================================
-   usuarios.css
-   Estilos básicos para la vista de administración de usuarios.
-   ========================================================== */
+﻿/* ==========================================================================
+   TechHelpDB - usuarios.css
+   OBJETIVO FINAL: Ajuste de textos de estado a blancos sin fondo. 
+   Mejora de select verde y uso de fracciones para la tabla responsiva.
+   ========================================================================== */
 
-
-/* Permite scroll horizontal si la pantalla es pequeña */
 .table-responsive {
+    width: 100%;
     overflow-x: auto;
+    border-radius: 16px;
+    border: 1px solid #2d2438;
+    background: #161022;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
 }
 
-/* Tabla principal de usuarios */
-.tabla-usuarios {
-    min-width: 950px;
+.tabla-solicitudes, .tabla-usuarios {
+    width: 100%;
+    border-collapse: collapse;
 }
 
-/* Encabezado azul de la tabla */
-.tabla-usuarios thead {
-    background-color: #0056b3;
-    color: white;
-}
+    .tabla-usuarios thead, .table thead {
+        background: linear-gradient(135deg, #1d142b 0%, #2e1b4d 100%);
+    }
 
-/* Alinea el contenido de las celdas */
-.tabla-usuarios th,
-.tabla-usuarios td {
-    vertical-align: middle !important;
-    padding: 10px;
-}
+    .tabla-usuarios th, .table th,
+    .tabla-usuarios th *, .table th * {
+        font-weight: 700;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        padding: 16px 12px;
+        border-bottom: 2px solid #3f334d;
+        color: #ffffff !important;
+        opacity: 1 !important;
+        white-space: nowrap;
+    }
 
-/* Columna de acciones */
+    .tabla-usuarios td, .table td,
+    .tabla-usuarios td *, .table td * {
+        padding: 14px 12px;
+        vertical-align: middle !important;
+        border-bottom: 1px solid #261c33;
+        font-size: 0.85rem;
+        color: #ffffff !important;
+        opacity: 1 !important;
+    }
+
+    .tabla-usuarios tbody tr:hover, .table tbody tr:hover {
+        background-color: #1e152e;
+    }
+
+/* ==========================================================================
+   GRID DE ACCIONES DE LA TABLA (1fr = Fracción dinámica responsiva)
+   ========================================================================== */
 .columna-acciones {
-    width: 280px;
-    min-width: 280px;
+    width: auto;
+    min-width: 180px;
 }
 
-/* Separa un poco los botones */
-.tabla-usuarios .btn {
-    margin: 2px;
+.acciones-compactas {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Divide el espacio disponible por la mitad */
+    gap: 8px;
+    align-items: center;
+}
+
+.btn-accion {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 0.8rem;
+    border-radius: 50px !important;
+    color: #ffffff !important;
+    text-align: center;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+    .btn-accion:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.1);
+    }
+
+.btn-ver {
+    background-color: #06b6d4 !important;
+    border: none;
+}
+
+.btn-actualizar {
+    background-color: #eab308 !important;
+    border: none;
+    color: #ffffff !important;
+}
+
+.btn-eliminar {
+    background-color: #ef4444 !important;
+    border: none;
+}
+
+/* --- BOTÓN VERDE (SELECT DE ESTADOS) REQUERIMIENTO CUMPLIDO --- */
+/* Se eliminaron herencias oscuras para que el verde y la letra blanca se vean nítidos */
+.select-estado, .btn-estado-accion {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%) !important; /* Esmeralda oscuro */
+    color: #ffffff !important; /* Blanco puro visible */
+    width: 100%;
+    height: 36px;
+    padding: 4px 12px;
+    border-radius: 50px !important;
+    border: 1px solid #064e3b !important;
+    font-size: 0.8rem;
+    font-weight: 700 !important;
+    text-align: center;
+    -webkit-appearance: none; /* Elimina la flecha fea por defecto de Chrome para selectores */
+    -moz-appearance: none;
+}
+
+    .select-estado option {
+        background-color: #161022;
+        color: #ffffff;
+    }
+
+    .select-estado:focus {
+        border-color: #10b981 !important;
+        outline: none;
+    }
+
+/* ==========================================================================
+   ESTADOS DE LA TABLA: TEXTO BLANCO SIN FONDO (Igual a "Resuelto")
+   ========================================================================== */
+/* Se quitó el background y los paddings de etiqueta para que sea texto puro alineado */
+.proceso, .estado-proceso,
+.pendiente-info, .estado-pendiente-info,
+.resuelto, .estado-resuelto {
+    background: transparent !important;
+    color: #ffffff !important; /* Solo texto blanco visible */
+    font-weight: 600;
+    font-size: 0.85rem;
+    display: block;
+    text-align: left; /* Alineado de forma limpia a la izquierda */
+    padding: 0;
 }

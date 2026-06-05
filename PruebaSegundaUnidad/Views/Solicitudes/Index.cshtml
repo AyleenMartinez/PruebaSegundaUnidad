@@ -1,60 +1,45 @@
 ﻿@using System.Collections.Generic
 @model PruebaSegundaUnidad.Models.SolicitudSoporte
-
 @{
     ViewBag.Title = "Solicitudes de Soporte";
-
-    // Áreas enviadas desde SolicitudesController.
     var areas = ViewBag.Areas as List<PruebaSegundaUnidad.Models.AreaSolicitante>;
-
-    // Tipos de problema enviados desde SolicitudesController.
     var tiposProblema = ViewBag.TiposProblema as List<PruebaSegundaUnidad.Models.TipoProblema>;
 }
 
-@* CSS propio del módulo Solicitudes *@
-<link href="@Url.Content("~/Content/solicitudes.css")" rel="stylesheet" />
+@* NOTA: Agregamos el parámetro ?v=4 para obligar al navegador a vaciar el caché y cargar los nuevos estilos CSS *@
+<link href="@Url.Content("~/Content/solicitudes.css?v=4")" rel="stylesheet" />
+<link href="@Url.Content("~/Content/usuarios.css?v=4")" rel="stylesheet" />
 
-@* Datos de sesión disponibles para el JavaScript externo *@
 <input type="hidden" id="UsuarioActualId" value="@Session["UsuarioId"]" />
 <input type="hidden" id="RolUsuario" value="@Session["Rol"]" />
 
 <div class="row">
     <div class="col-md-12">
-
-        <h2>Gestión de Soporte Técnico</h2>
-
-        @* JavaScript muestra aquí mensajes de éxito o error *@
+        <h2 style="color: #ffffff; font-weight: 800; margin-bottom: 25px;">
+            Gestión de Soporte Técnico
+        </h2>
         <div id="alertasContainer"></div>
-
     </div>
 </div>
 
 <div class="row">
-
-    @* Formulario para crear una nueva solicitud *@
+    @* --- MÓDULO IZQUIERDO: FORMULARIO DE INGRESO --- *@
     <div class="col-md-4">
-
-        <div class="panel panel-default panel-soporte">
-            <div class="panel-heading">
-                Nueva solicitud
-            </div>
-
+        @* Se limpiaron las clases predeterminadas de Bootstrap para dejar actuar a nuestro CSS corporativo *@
+        <div class="panel panel-soporte">
+            <div class="panel-heading">Nueva solicitud</div>
             <div class="panel-body">
-
-                @* Este formulario se envía con JavaScript usando fetch hacia la API *@
                 <form id="frmNuevaSolicitud">
 
-                    <div class="form-group">
+                    <div class="form-group solicitud-form-group">
                         <label>Solicitante</label>
                         <input type="text" class="form-control" value="@Session["NombreCompleto"]" readonly />
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group solicitud-form-group">
                         <label>Área <span class="text-danger">*</span></label>
-
                         <select class="form-control" id="IdArea" required>
                             <option value="">-- Seleccione área --</option>
-
                             @if (areas != null)
                             {
                                 foreach (var area in areas)
@@ -65,12 +50,10 @@
                         </select>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group solicitud-form-group">
                         <label>Tipo de problema <span class="text-danger">*</span></label>
-
                         <select class="form-control" id="IdTipoProblema" required>
                             <option value="">-- Seleccione problema --</option>
-
                             @if (tiposProblema != null)
                             {
                                 foreach (var tipo in tiposProblema)
@@ -81,101 +64,72 @@
                         </select>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group solicitud-form-group">
                         <label>Prioridad <span class="text-danger">*</span></label>
-
                         <select class="form-control" id="IdPrioridad" required>
                             <option value="1">Baja</option>
                             <option value="2" selected>Media</option>
                             <option value="3">Alta</option>
                         </select>
-
-                        <div class="campo-ayuda">
+                        <div class="campo-ayuda" style="color: #cbd5e1; font-size: 0.85rem; margin-top: 5px; margin-left: 10px;">
                             Baja: menos urgente | Media: normal | Alta: requiere atención rápida
                         </div>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group solicitud-form-group">
                         <label>Descripción <span class="text-danger">*</span></label>
-
-                        <textarea class="form-control"
-                                  id="Descripcion"
-                                  rows="4"
-                                  minlength="10"
-                                  required
-                                  placeholder="Describe el problema con al menos 10 caracteres"></textarea>
-
-                        <span id="contadorDescripcion" class="contador-descripcion contador-error">
+                        <textarea class="form-control" id="Descripcion" rows="4" minlength="10" required placeholder="Describe el problema..."></textarea>
+                        <span id="contadorDescripcion" style="color: #cbd5e1; margin-top: 5px; display: block; margin-left: 10px;">
                             0/10 caracteres mínimos
                         </span>
                     </div>
 
-                    <button type="submit" class="btn btn-success btn-block">
-                        Guardar solicitud
-                    </button>
-
+                    <button type="submit" class="btn btn-solicitud btn-block">Guardar solicitud</button>
                 </form>
-
             </div>
         </div>
-
     </div>
 
-    @* Tabla donde JavaScript carga el historial desde la API *@
+    @* --- MÓDULO DERECHO: HISTORIAL Y TABLA --- *@
     <div class="col-md-8">
-
-        <div class="panel panel-default panel-soporte">
-            <div class="panel-heading">
-                Historial de solicitudes
-            </div>
-
+        <div class="panel panel-soporte">
+            <div class="panel-heading">Historial de solicitudes</div>
             <div class="panel-body">
-
                 <div class="table-responsive">
-
-                    <table class="table table-striped table-hover tabla-solicitudes" id="tablaSolicitudes">
+                    @* Se eliminaron 'table-striped' y 'table-hover' para garantizar el fondo oscuro *@
+                    <table class="table tabla-solicitudes" id="tablaSolicitudes">
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th class="columna-fecha">Fecha</th>
+                                <th>Fecha</th>
                                 <th>Usuario</th>
                                 <th>Problema</th>
                                 <th>Prioridad</th>
                                 <th>Estado</th>
-                                <th class="columna-acciones">Acciones</th>
+                                <th>Acciones</th>
                             </tr>
                         </thead>
-
                         <tbody>
-                            @* Scripts/app/solicitudes.js inserta aquí las solicitudes *@
+                            @* Inyección mediante JS *@
                         </tbody>
                     </table>
-
                 </div>
-
             </div>
         </div>
-
     </div>
-
 </div>
 
-@* Modal Bootstrap para mostrar el detalle de una solicitud *@
-<div class="modal fade" id="modalDetalleSolicitud" tabindex="-1" role="dialog" aria-labelledby="tituloModalDetalle">
+@* --- VENTANA MODAL ADAPTADA A MODO OSCURO --- *@
+<div class="modal fade" id="modalDetalleSolicitud" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
-
-            <div class="modal-header">
-
-                <button type="button" class="close" onclick="cerrarModalDetalle()" aria-label="Cerrar">
+        @* Sobrescritura inline del Modal Blanco de Bootstrap hacia Dark Mode *@
+        <div class="modal-content" style="background-color: #161022; color: #ffffff; border: 1px solid #2d2438; border-radius: 16px;">
+            <div class="modal-header" style="border-bottom: 1px solid #3f334d;">
+                <button type="button" class="close" onclick="cerrarModalDetalle()" style="color: #ffffff; opacity: 0.8; text-shadow: none;">
                     <span aria-hidden="true">&times;</span>
                 </button>
-
-                <h4 class="modal-title" id="tituloModalDetalle">
-                    Detalle de la solicitud
-                </h4>
+                <h4 class="modal-title" style="font-weight: 700; color: #ffffff;">Detalle de la solicitud</h4>
             </div>
-
             <div class="modal-body">
                 <p><strong>ID:</strong> <span id="detalleId"></span></p>
                 <p><strong>Solicitante:</strong> <span id="detalleUsuario"></span></p>
@@ -183,24 +137,20 @@
                 <p><strong>Problema:</strong> <span id="detalleProblema"></span></p>
                 <p><strong>Prioridad:</strong> <span id="detallePrioridad"></span></p>
                 <p><strong>Estado:</strong> <span id="detalleEstado"></span></p>
-
-                <hr />
-
+                <hr style="border-top: 1px solid #3f334d;" />
                 <p><strong>Descripción:</strong></p>
-                <div id="detalleDescripcion" class="descripcion-modal"></div>
+                @* Contenedor interno que simula un cuadro de texto protegido *@
+                <div id="detalleDescripcion" style="background-color: #0b0811; padding: 15px; border-radius: 8px; border: 1px solid #3f334d;"></div>
             </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" onclick="cerrarModalDetalle()">
+            <div class="modal-footer" style="border-top: 1px solid #3f334d;">
+                <button type="button" onclick="cerrarModalDetalle()" style="background-color: #3f334d; color: #ffffff; border: none; border-radius: 50px; padding: 8px 20px;">
                     Cerrar
                 </button>
             </div>
-
         </div>
     </div>
 </div>
 
 @section Scripts {
-    @* Script externo que consume la API de solicitudes *@
-    <script src="@Url.Content("~/Scripts/app/solicitudes.js?v=3")"></script>
+    <script src="@Url.Content("~/Scripts/app/solicitudes.js?v=4")"></script>
 }

@@ -1,69 +1,122 @@
-﻿/* ==========================================================
-   Ajuste de acciones en tabla de solicitudes
-   ========================================================== */
+﻿/* ==========================================================================
+   TechHelpDB - solicitudes.css
+   OBJETIVO: Módulo de Solicitudes integrado al Grid Responsivo de 14".
+   ========================================================================== */
 
-
-/* Antes: la tabla podía quedar muy angosta y cortar los botones.
-   Ahora: se permite scroll horizontal si no cabe completa. */
-.table-responsive {
-    overflow-x: auto;
+.solicitudes-contenedor {
+    margin-top: 15px;
 }
 
-
-/* Antes: la tabla intentaba comprimirse demasiado.
-   Ahora: mantiene un ancho mínimo para que las acciones no se rompan. */
-.tabla-solicitudes {
-    min-width: 850px;
+.solicitud-card {
+    border: 1px solid #2d2438;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    background-color: #161022;
+    margin-bottom: 25px;
+    color: #ffffff;
 }
 
+    .solicitud-card h2, .solicitud-card h3 {
+        color: #ffffff !important;
+        font-weight: 800;
+        margin-top: 0;
+        margin-bottom: 25px;
+        border-left: 5px solid #8b5cf6;
+        padding-left: 14px;
+        font-size: 1.3rem;
+    }
 
-/* Antes: acciones podía quedar muy estrecho.
-   Ahora: se reserva espacio suficiente para botones y select. */
-.columna-acciones {
-    min-width: 230px;
-    width: 230px;
+.solicitud-form-group {
+    margin-bottom: 20px;
 }
 
+    .solicitud-form-group label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #ffffff !important;
+        margin-bottom: 8px;
+        margin-left: 15px;
+    }
 
-/* Antes: los botones estaban en flex y podían cortarse al borde.
-   Ahora: se ordenan en 2 columnas claras:
-   fila 1: Ver + estado
-   fila 2: Actualizar + Eliminar */
-.acciones-compactas {
-    display: grid;
-    grid-template-columns: 70px 120px;
-    gap: 6px;
+    /* Ayudas y contadores de formulario (Blanco humo) */
+    .solicitud-form-group .help-block,
+    .solicitud-form-group small,
+    .contador-descripcion {
+        color: #e2e8f0 !important;
+        margin-left: 15px;
+        display: block;
+        margin-top: 6px;
+        font-size: 0.75rem;
+    }
+
+.btn-solicitud {
+    background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+    color: #ffffff !important;
+    font-weight: 700;
+    padding: 12px 24px;
+    border-radius: 50px !important;
+    border: none;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+    .btn-solicitud:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
+    }
+
+/* Alertas Circulares / Pill-shape */
+.solicitud-alerta {
+    padding: 14px 20px;
+    border-radius: 50px !important;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 22px;
+    display: flex;
     align-items: center;
+    gap: 12px;
 }
 
-
-/* Select de estado dentro de acciones */
-.select-estado {
-    width: 120px;
-    min-width: 120px;
+.solicitud-alerta-exito {
+    background-color: #064e3b;
+    border-color: #059669;
+    color: #ffffff !important;
 }
 
-
-/* Botones dentro de acciones */
-.btn-accion {
-    width: 100%;
-    margin-bottom: 0;
-    white-space: nowrap;
+.solicitud-alerta-error {
+    background-color: #450a0a;
+    border-color: #b91c1c;
+    color: #ffffff !important;
 }
 
-
-/* Botón Ver un poco más compacto */
-.acciones-compactas .btn-info {
-    width: 70px;
+.historial-solicitudes {
+    margin-top: 35px;
 }
 
+    .historial-solicitudes h4 {
+        color: #ffffff !important;
+        font-weight: 700;
+        margin-bottom: 20px;
+        font-size: 1.1rem;
+    }
 
-/* Aviso de cambio pendiente ocupa toda la fila */
-.aviso-cambio-pendiente {
-    grid-column: 1 / 3;
-    display: block;
-    font-size: 11px;
-    color: #8a6d3b;
-    font-weight: bold;
-    margin-top: 2px;
+/* Fuerza de anulación extrema para la tabla dinámica de JavaScript */
+table#tablaSolicitudes th,
+table#tablaSolicitudes td,
+table#tablaSolicitudes th *,
+table#tablaSolicitudes td * {
+    color: #ffffff !important;
+    opacity: 1 !important;
 }
+
+    /* Se limpia cualquier color de los estados dinámicos (Texto blanco puro) */
+    table#tablaSolicitudes td .pendiente,
+    table#tablaSolicitudes td .estado-pendiente,
+    table#tablaSolicitudes td .btn-pendiente,
+    table#tablaSolicitudes td .proceso,
+    table#tablaSolicitudes td .resuelto {
+        color: #ffffff !important;
+        background: transparent !important;
+        padding: 0;
+    }

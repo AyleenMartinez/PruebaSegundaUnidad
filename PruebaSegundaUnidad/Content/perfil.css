@@ -1,67 +1,106 @@
-﻿/* ==========================================================
-   perfil.css
-   Estilos propios de la vista Mi Perfil.
-   ========================================================== */
-
-
-/* Antes: la vista funcionaba, pero los botones y campos quedaban muy juntos.
-   Ahora: se agregan espacios para que el formulario se vea más ordenado. */
+﻿/* ==========================================================================
+   TechHelpDB - perfil.css
+   NUEVO: Integración de Caja Ovalada para sección de Seguridad (Contraseña)
+   ========================================================================== */
 
 .perfil-contenedor {
-    margin-top: 10px;
+    margin-top: 15px;
 }
 
-/* Tarjeta principal del perfil */
 .perfil-card {
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    padding: 25px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    background-color: #fff;
+    border: 1px solid #2d2438;
+    border-radius: 16px;
+    padding: 30px; /* Respiración para la tarjeta */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    background-color: #161022;
 }
 
-/* Secciones internas: datos personales y contraseña */
-.perfil-seccion {
+.perfil-seccion h4 {
+    color: #ffffff;
     margin-bottom: 25px;
+    font-weight: 800;
+    border-left: 5px solid #8b5cf6;
+    padding-left: 12px;
+    font-size: 1.2rem;
 }
 
-    /* Títulos de cada sección */
-    .perfil-seccion h4 {
-        margin-bottom: 18px;
-        font-weight: bold;
+/* --- CAJA OVALADA EXCLUSIVA PARA CAMBIAR CONTRASEÑA --- */
+.caja-cambio-password {
+    background: linear-gradient(135deg, #110c18 0%, #1a1423 100%);
+    border: 1px solid #3f334d;
+    border-radius: 30px; /* Borde de píldora expandido */
+    padding: 25px 30px;
+    margin-top: 25px;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
+}
+
+    .caja-cambio-password h4 {
+        border-left: none; /* Se quita la marca lateral para no ensuciar el óvalo */
+        padding-left: 0;
+        text-align: center;
+        color: #a78bfa;
+        margin-bottom: 20px;
     }
 
-/* Antes: los form-group quedaban demasiado pegados.
-   Ahora: cada campo tiene más espacio inferior. */
 .perfil-form-group {
-    margin-bottom: 16px;
+    margin-bottom: 18px;
 }
 
-/* Botones principales de cada sección */
-.perfil-btn {
+    .perfil-form-group label {
+        margin-left: 15px;
+        color: #ffffff;
+        font-size: 0.85rem;
+    }
+
+/* Indicador de Fuerza Contraseña */
+.strength-meter {
+    height: 6px;
+    background-color: #2d2438;
+    border-radius: 50px;
     margin-top: 8px;
-    margin-bottom: 6px;
+    overflow: hidden;
 }
 
-/* Separador entre datos personales y cambio de contraseña */
-.perfil-separador {
-    margin-top: 25px;
-    margin-bottom: 25px;
+    .strength-meter div {
+        height: 100%;
+        border-radius: 50px;
+        width: 0;
+        transition: width 0.4s ease-in-out;
+    }
+
+/* Requisito: Las letras no deben perderse (Color humo garantizado) */
+.char-counter {
+    font-size: 0.75rem;
+    color: #e2e8f0 !important;
+    margin-top: 6px;
+    display: block;
+    text-align: right;
+    margin-right: 15px;
 }
 
-/* Ajuste del botón Ver/Ocultar contraseña */
-.btn-ver-password {
-    min-width: 80px;
-}
-
-/* Ayuda a que el input y el botón Ver queden alineados */
 .perfil-input-password {
     display: flex;
     gap: 8px;
     align-items: center;
 }
 
-    /* El campo ocupa todo el espacio disponible */
     .perfil-input-password .form-control {
         flex: 1;
+    }
+
+.btn-ver-password {
+    min-width: 80px;
+    height: 42px;
+    border: 1px solid #3f334d;
+    background-color: #1a1423;
+    color: #ffffff !important;
+    border-radius: 50px !important;
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+    .btn-ver-password:hover {
+        background-color: #2d1b4e;
+        border-color: #8b5cf6;
     }

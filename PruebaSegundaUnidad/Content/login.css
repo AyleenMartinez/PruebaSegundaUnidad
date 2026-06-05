@@ -1,65 +1,79 @@
-﻿/* ==========================================================
-   login.css
-   Estilos propios de la pantalla de inicio de sesión.
-   ========================================================== */
-
-
-/* Antes: el login dependía mucho del estilo general del proyecto.
-   Ahora: tiene estilos propios para ordenar la tarjeta, campos y botón. */
+﻿/* ==========================================================================
+   TechHelpDB - login.css
+   OBJETIVO: Login Inmersivo centrado y adaptado para pantallas de 14".
+   ========================================================================== */
 
 .login-page {
-    margin-top: 55px;
+    min-height: 85vh;
     display: flex;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle at top right, rgba(139, 92, 246, 0.15), transparent 40%), radial-gradient(circle at bottom left, rgba(88, 28, 135, 0.15), transparent 50%);
 }
 
-/* Tarjeta principal del login */
 .login-card {
-    width: 420px;
-    max-width: 100%;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.10);
+    width: 100%;
+    max-width: 400px; /* Ancho ajustado a lo premium, no muy extendido */
+    margin: 0 auto;
+    border-radius: 24px;
+    border: 1px solid #2d2438;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.8); /* Sombra pesada */
+    background: #161022;
 }
 
-    /* Encabezado de la tarjeta */
     .login-card .panel-heading {
-        background-color: #1f2937;
-        border-color: #1f2937;
-        padding: 22px 15px;
+        background: linear-gradient(135deg, #1d142b 0%, #2e1b4d 100%);
+        padding: 28px 20px;
+        text-align: center;
+        border-bottom: 1px solid #2d2438;
     }
 
-        /* Título TechHelpWeb */
         .login-card .panel-heading h3 {
             margin: 0;
-            color: #fff;
-            font-weight: bold;
+            color: #ffffff !important;
+            font-size: 1.6rem;
+            font-weight: 800;
         }
 
-    /* Cuerpo del formulario */
     .login-card .panel-body {
-        padding: 28px 25px;
+        padding: 35px 25px;
     }
 
-/* Antes: los campos quedaban muy juntos.
-   Ahora: cada campo tiene más espacio hacia abajo. */
 .login-form-group {
-    margin-bottom: 18px;
+    width: 100%;
+    margin-bottom: 20px;
 }
 
-/* Antes: el botón Ingresar quedaba pegado al input de contraseña.
-   Ahora: se separa un poco solo en la vista Login. */
-.login-btn {
-    margin-top: 12px;
+    .login-form-group label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #ffffff !important;
+        margin-bottom: 8px;
+        margin-left: 15px; /* Sangría alineada con el borde del input ovalado */
+    }
+
+/* Botón de Ingreso Ovalado */
+.btn-login, .login-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+    color: #ffffff !important;
+    font-size: 1.05rem;
+    padding: 14px;
+    margin-top: 15px;
+    border-radius: 50px !important;
+    font-weight: 700;
+    border: none;
 }
 
-/* Mensaje de error general del login */
 .login-error {
-    margin-bottom: 18px;
-}
-
-/* Mensajes de validación bajo cada campo */
-.login-validacion {
-    display: block;
-    margin-top: 5px;
+    background-color: #2e1014;
+    border: 1px solid #7f1d1d;
+    color: #ffffff !important;
+    padding: 12px 15px;
+    border-radius: 50px; /* Mantiene la filosofía del óvalo */
+    font-size: 0.85rem;
+    margin-bottom: 15px;
+    text-align: center;
 }
