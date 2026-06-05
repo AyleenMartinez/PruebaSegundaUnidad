@@ -1,34 +1,48 @@
-﻿using System.Web;
-using System.Web.Optimization;
-
-// Optimizar de rendmiento de la aplicación ASP.NET MVC
-// mediante la agrupación y minificación de archivos JavaScript y CSS.
+﻿using System.Web.Optimization;
 
 namespace PruebaSegundaUnidad
 {
+    // Configura los bundles del proyecto.
+    // Un bundle agrupa archivos JavaScript o CSS para cargarlos de forma más ordenada desde el Layout.
     public class BundleConfig
     {
-        // Para obtener más información sobre las uniones, visite https://go.microsoft.com/fwlink/?LinkId=301862
+        // Este método se ejecuta al iniciar la aplicación desde Global.asax.
         public static void RegisterBundles(BundleCollection bundles)
         {
+            #region Scripts principales
+
+            // Bundle de jQuery.
+            // Se usa para funcionalidades JavaScript y también por Bootstrap.
             bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
                         "~/Scripts/jquery-{version}.js"));
 
+            // Bundle de validaciones del lado cliente.
+            // Se usa con DataAnnotations y @Html.ValidationMessageFor.
             bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
                         "~/Scripts/jquery.validate*"));
 
-            // Utilice la versión de desarrollo de Modernizr para desarrollar y obtener información sobre los formularios.  De esta manera estará
-            // para la producción, use la herramienta de compilación disponible en https://modernizr.com para seleccionar solo las pruebas que necesite.
+            // Bundle de Modernizr.
+            // Ayuda a detectar características del navegador.
             bundles.Add(new ScriptBundle("~/bundles/modernizr").Include(
                         "~/Scripts/modernizr-*"));
 
+            // Bundle de Bootstrap JavaScript.
+            // Se usa para componentes como navbar, modal y botones responsivos.
             bundles.Add(new Bundle("~/bundles/bootstrap").Include(
                       "~/Scripts/bootstrap.js"));
 
+            #endregion
+
+            #region Estilos principales
+
+            // Bundle principal de CSS.
+            // Se carga desde _Layout.cshtml con @Styles.Render("~/Content/css").
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap/bootstrap.css",
                       "~/Content/Site.css",
                       "~/Content/index.css"));
+
+            #endregion
         }
     }
 }
