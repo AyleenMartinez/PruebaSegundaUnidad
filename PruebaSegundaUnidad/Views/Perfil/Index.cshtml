@@ -22,7 +22,7 @@
 
                 <h4>Datos personales</h4>
 
-                @* Formulario MVC para actualizar nombre completo y correo *@
+                @* Formulario MVC para actualizar solo el nombre completo *@
                 @using (Html.BeginForm("ActualizarDatos", "Perfil", FormMethod.Post))
                 {
                     @Html.AntiForgeryToken()
@@ -39,11 +39,14 @@
                     </div>
 
                     <div class="form-group perfil-form-group">
-                        <label>Correo <span class="text-danger">*</span></label>
+                        <label>Correo</label>
 
-                        @Html.TextBoxFor(m => m.Correo, new { @class = "form-control", type = "email" })
+                        @* El correo se muestra, pero no se edita desde Mi Perfil *@
+                        @Html.TextBoxFor(m => m.Correo, new { @class = "form-control", type = "email", @readonly = "readonly" })
 
-                        @Html.ValidationMessageFor(m => m.Correo, "", new { @class = "text-danger" })
+                        <small class="text-muted">
+                            El correo está asociado a la cuenta y no se modifica desde esta pantalla.
+                        </small>
                     </div>
 
                     @* Mensaje de éxito para datos personales *@

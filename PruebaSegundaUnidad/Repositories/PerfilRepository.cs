@@ -18,7 +18,7 @@ namespace PruebaSegundaUnidad.Repositories
         {
             using (SqlConnection con = new SqlConnection(conexion))
             {
-                // Se consultan solo los campos que se muestran y editan en el perfil.
+                // Se consultan los campos que se muestran en el perfil.
                 string query = @"
                     SELECT Id, NombreCompleto, Correo
                     FROM Usuarios
@@ -55,49 +55,20 @@ namespace PruebaSegundaUnidad.Repositories
 
         #region Actualizar datos personales
 
-        // Revisa si el correo escrito ya pertenece a otro usuario.
-        public bool ExisteCorreoEnOtroUsuario(int usuarioId, string correo)
+        // Actualiza solo el nombre completo del usuario conectado.
+        // El correo se muestra en el perfil, pero no se modifica desde esta vista.
+        public bool ActualizarDatosPerfil(int usuarioId, string nombreCompleto)
         {
             using (SqlConnection con = new SqlConnection(conexion))
             {
-                // Busca el mismo correo en usuarios distintos al usuario actual.
-                string query = @"
-                    SELECT COUNT(*)
-                    FROM Usuarios
-                    WHERE Correo = @Correo
-                    AND Id <> @Id";
-
-                SqlCommand cmd = new SqlCommand(query, con);
-
-                cmd.Parameters.AddWithValue("@Correo", correo);
-                cmd.Parameters.AddWithValue("@Id", usuarioId);
-
-                con.Open();
-
-                // ExecuteScalar se usa porque la consulta devuelve un solo valor: COUNT(*).
-                int cantidad = (int)cmd.ExecuteScalar();
-
-                // Si cantidad es mayor a cero, el correo ya está ocupado por otro usuario.
-                return cantidad > 0;
-            }
-        }
-
-        // Actualiza nombre completo y correo del usuario conectado.
-        public bool ActualizarDatosPerfil(int usuarioId, string nombreCompleto, string correo)
-        {
-            using (SqlConnection con = new SqlConnection(conexion))
-            {
-                // Se actualizan solo los datos básicos del usuario actual.
                 string query = @"
                     UPDATE Usuarios
-                    SET NombreCompleto = @NombreCompleto,
-                        Correo = @Correo
+                    SET NombreCompleto = @NombreCompleto
                     WHERE Id = @Id";
 
                 SqlCommand cmd = new SqlCommand(query, con);
 
                 cmd.Parameters.AddWithValue("@NombreCompleto", nombreCompleto);
-                cmd.Parameters.AddWithValue("@Correo", correo);
                 cmd.Parameters.AddWithValue("@Id", usuarioId);
 
                 con.Open();

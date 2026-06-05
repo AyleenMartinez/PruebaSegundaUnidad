@@ -5,7 +5,7 @@ using PruebaSegundaUnidad.Repositories;
 namespace PruebaSegundaUnidad.Controllers
 {
     // Controlador encargado del perfil del usuario conectado.
-    // Permite ver datos, editar datos personales y cambiar contraseña.
+    // Permite ver datos, editar nombre completo y cambiar contraseña.
     // Este módulo usa MVC y Razor, sin API.
     public class PerfilController : Controller
     {
@@ -62,38 +62,40 @@ namespace PruebaSegundaUnidad.Controllers
             // Se usa el Id de la sesión para evitar modificar otro usuario desde el formulario.
             modelo.UsuarioId = (int)Session["UsuarioId"];
 
+            // Se obtiene el correo real desde la base.
+            // Así se evita que alguien lo cambie manipulando el formulario desde el navegador.
+            PerfilViewModel datosActuales = _perfilRepo.ObtenerDatosPerfil(modelo.UsuarioId);
+
+            if (datosActuales == null)
+            {
+                Session.Clear();
+                Session.Abandon();
+                return RedirectToAction("Login", "Auth");
+            }
+
+            // El correo no se edita desde Mi Perfil.
+            // Se mantiene el correo real que está guardado en la base de datos.
+            modelo.Correo = datosActuales.Correo;
+
+            // Como el correo no se actualiza desde este formulario, se limpia su validación del ModelState.
+            ModelState.Remove("Correo");
+
             // Se limpian espacios innecesarios del nombre.
             if (modelo.NombreCompleto != null)
             {
                 modelo.NombreCompleto = modelo.NombreCompleto.Trim();
             }
 
-            // Se limpian espacios innecesarios del correo.
-            if (modelo.Correo != null)
-            {
-                modelo.Correo = modelo.Correo.Trim();
-            }
-
-            // Se revisan validaciones como nombre obligatorio y formato de correo.
+            // Se revisa la validación del nombre completo.
             if (!ModelState.IsValid)
             {
                 return View("Index", modelo);
             }
 
-            // Se revisa que el correo no esté ocupado por otro usuario.
-            bool correoDuplicado = _perfilRepo.ExisteCorreoEnOtroUsuario(modelo.UsuarioId, modelo.Correo);
-
-            if (correoDuplicado)
-            {
-                ModelState.AddModelError("Correo", "Este correo ya está registrado por otro usuario.");
-                return View("Index", modelo);
-            }
-
-            // Se guardan los datos personales en la base.
+            // Se guarda solo el nombre completo.
             bool exito = _perfilRepo.ActualizarDatosPerfil(
                 modelo.UsuarioId,
-                modelo.NombreCompleto,
-                modelo.Correo
+                modelo.NombreCompleto
             );
 
             // Si no se pudo actualizar, se muestra error.
@@ -103,9 +105,11 @@ namespace PruebaSegundaUnidad.Controllers
                 return View("Index", modelo);
             }
 
-            // Se actualiza Session para que el menú use el nombre y correo nuevos.
+            // Se actualiza Session para que el menú use el nombre nuevo.
             Session["NombreCompleto"] = modelo.NombreCompleto;
-            Session["Correo"] = modelo.Correo;
+
+            // El correo queda igual porque no se permite editar desde Mi Perfil.
+            Session["Correo"] = datosActuales.Correo;
 
             // TempData permite mostrar el mensaje después de redirigir.
             TempData["MensajePerfil"] = "Datos del perfil actualizados correctamente.";

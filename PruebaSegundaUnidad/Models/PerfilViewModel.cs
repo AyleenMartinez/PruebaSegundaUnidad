@@ -3,7 +3,7 @@
 namespace PruebaSegundaUnidad.Models
 {
     // ViewModel usado por la vista Mi Perfil.
-    // Junta los datos personales editables y los campos para cambiar contraseña.
+    // Junta los datos visibles del perfil y los campos para cambiar contraseña.
     public class PerfilViewModel
     {
         #region Datos personales
@@ -16,7 +16,8 @@ namespace PruebaSegundaUnidad.Models
         [StringLength(100, ErrorMessage = "El nombre completo no puede superar los 100 caracteres")]
         public string NombreCompleto { get; set; }
 
-        // Correo editable desde el perfil.
+        // Correo del usuario.
+        // Se muestra en Mi Perfil, pero no se edita desde esta vista.
         [Required(ErrorMessage = "El correo es obligatorio")]
         [EmailAddress(ErrorMessage = "Debe ingresar un correo válido")]
         [StringLength(100, ErrorMessage = "El correo no puede superar los 100 caracteres")]
@@ -27,7 +28,7 @@ namespace PruebaSegundaUnidad.Models
         #region Cambio de contraseña
 
         // Contraseña actual escrita por el usuario.
-        // Se valida manualmente en el controlador para este formulario.
+        // Se valida manualmente en el controlador.
         [DataType(DataType.Password)]
         public string ClaveActual { get; set; }
 
