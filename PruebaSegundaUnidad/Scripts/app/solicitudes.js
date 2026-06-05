@@ -1,6 +1,7 @@
 ﻿/* ==========================================================
    solicitudes.js
    Lógica del módulo de solicitudes de soporte.
+   Consume la API RESTful /api/solicitudes usando fetch.
    ========================================================== */
 
 
@@ -26,24 +27,24 @@ document.addEventListener("DOMContentLoaded", function () {
     // Carga inicial de solicitudes.
     cargarSolicitudes();
 
-    // Se toma el formulario de nueva solicitud.
+    // Formulario de nueva solicitud.
     const formulario = document.getElementById("frmNuevaSolicitud");
 
     // Campo de descripción usado para contar caracteres.
     const campoDescripcion = document.getElementById("Descripcion");
 
-    // Se evita que el formulario recargue la página y se envía por API.
+    // Evita que el formulario recargue la página y lo envía por API.
     formulario.addEventListener("submit", function (e) {
         e.preventDefault();
         crearSolicitud();
     });
 
-    // El contador se actualiza mientras el usuario escribe.
+    // Actualiza el contador mientras el usuario escribe.
     campoDescripcion.addEventListener("input", function () {
         actualizarContadorDescripcion();
     });
 
-    // Deja el contador inicializado al cargar la página.
+    // Deja el contador inicializado al cargar.
     actualizarContadorDescripcion();
 });
 
@@ -131,6 +132,7 @@ function obtenerBadgeEstado(idEstado, nombreEstado) {
 
 
 // GET /api/solicitudes
+// Carga las solicitudes desde la API y las dibuja en la tabla.
 function cargarSolicitudes() {
     fetch("/api/solicitudes")
         .then(function (response) {
@@ -138,16 +140,15 @@ function cargarSolicitudes() {
                 throw new Error("No se pudieron cargar las solicitudes.");
             }
 
+            // Convierte la respuesta JSON en datos que JavaScript puede usar.
             return response.json();
         })
         .then(function (data) {
 
             // Se filtra la lista según el rol antes de mostrarla.
-            // Usuario normal ve solo sus solicitudes.
-            // Administrador y Soporte ven todas.
             const solicitudesFiltradas = filtrarSolicitudesSegunRol(data);
 
-            // Se guarda la lista filtrada para que el modal solo pueda abrir lo visible para ese usuario.
+            // Se guarda la lista visible para usarla al abrir el modal.
             solicitudesCargadas = solicitudesFiltradas;
 
             const tbody = document.querySelector("#tablaSolicitudes tbody");
@@ -206,11 +207,6 @@ function cargarSolicitudes() {
                             Cambio sin guardar
                         </span>
                     `;
-                }
-                else {
-                    // Usuario normal solo puede ver el detalle.
-                    // No se agregan botones de actualizar ni eliminar.
-                    botones += ``;
                 }
 
                 botones += `</div>`;
@@ -306,6 +302,7 @@ function actualizarContadorDescripcion() {
 
 
 // POST /api/solicitudes
+// Crea una nueva solicitud enviando JSON a la API.
 function crearSolicitud() {
     const descripcion = document.getElementById("Descripcion").value.trim();
 
@@ -391,6 +388,7 @@ function guardarEstadoDesdeSelect(id) {
 
 
 // PUT /api/solicitudes/{id}/estado
+// Actualiza el estado de una solicitud.
 function actualizarEstado(id, nuevoEstadoId) {
     fetch(`/api/solicitudes/${id}/estado`, {
         method: "PUT",
@@ -417,6 +415,7 @@ function actualizarEstado(id, nuevoEstadoId) {
 
 
 // DELETE /api/solicitudes/{id}
+// Elimina una solicitud después de confirmar.
 function eliminarSolicitud(id) {
     const confirmar = confirm("¿Seguro que deseas eliminar esta solicitud?");
 

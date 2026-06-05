@@ -2,7 +2,6 @@
 @model PruebaSegundaUnidad.Models.SolicitudSoporte
 
 @{
-    // Título de la vista.
     ViewBag.Title = "Solicitudes de Soporte";
 
     // Áreas enviadas desde SolicitudesController.
@@ -12,12 +11,10 @@
     var tiposProblema = ViewBag.TiposProblema as List<PruebaSegundaUnidad.Models.TipoProblema>;
 }
 
-@* Antes: el CSS estaba dentro de la vista.
-    Ahora: el diseño queda separado en Content/solicitudes.css. *@
+@* CSS propio del módulo Solicitudes *@
 <link href="@Url.Content("~/Content/solicitudes.css")" rel="stylesheet" />
 
-@* Antes: el JavaScript usaba Session directamente dentro del .cshtml.
-    Ahora: estos datos quedan ocultos en la vista para que el archivo JS externo pueda leerlos. *@
+@* Datos de sesión disponibles para el JavaScript externo *@
 <input type="hidden" id="UsuarioActualId" value="@Session["UsuarioId"]" />
 <input type="hidden" id="RolUsuario" value="@Session["Rol"]" />
 
@@ -26,7 +23,7 @@
 
         <h2>Gestión de Soporte Técnico</h2>
 
-        @* Aquí JavaScript muestra mensajes de éxito o error *@
+        @* JavaScript muestra aquí mensajes de éxito o error *@
         <div id="alertasContainer"></div>
 
     </div>
@@ -44,8 +41,7 @@
 
             <div class="panel-body">
 
-                @* Antes: un formulario normal recargaba la página.
-                    Ahora: se envía con fetch a la API desde Scripts/app/solicitudes.js. *@
+                @* Este formulario se envía con JavaScript usando fetch hacia la API *@
                 <form id="frmNuevaSolicitud">
 
                     <div class="form-group">
@@ -59,8 +55,6 @@
                         <select class="form-control" id="IdArea" required>
                             <option value="">-- Seleccione área --</option>
 
-                            @* Antes: las áreas podían quedar escritas a mano.
-                                Ahora: vienen desde la base mediante ViewBag.Areas. *@
                             @if (areas != null)
                             {
                                 foreach (var area in areas)
@@ -77,8 +71,6 @@
                         <select class="form-control" id="IdTipoProblema" required>
                             <option value="">-- Seleccione problema --</option>
 
-                            @* Antes: los tipos podían quedar fijos.
-                                Ahora: vienen desde ViewBag.TiposProblema. *@
                             @if (tiposProblema != null)
                             {
                                 foreach (var tipo in tiposProblema)
@@ -106,8 +98,6 @@
                     <div class="form-group">
                         <label>Descripción <span class="text-danger">*</span></label>
 
-                        @* Antes: solo se indicaba el mínimo en el placeholder.
-                            Ahora: también hay un contador visible de caracteres. *@
                         <textarea class="form-control"
                                   id="Descripcion"
                                   rows="4"
@@ -131,7 +121,7 @@
 
     </div>
 
-    @* Tabla donde se carga el historial desde la API *@
+    @* Tabla donde JavaScript carga el historial desde la API *@
     <div class="col-md-8">
 
         <div class="panel panel-default panel-soporte">
@@ -170,21 +160,20 @@
 
 </div>
 
-@* Antes: el detalle se mostraba con alert().
-    Ahora: se usa un modal Bootstrap para que se vea más claro. *@
+@* Modal Bootstrap para mostrar el detalle de una solicitud *@
 <div class="modal fade" id="modalDetalleSolicitud" tabindex="-1" role="dialog" aria-labelledby="tituloModalDetalle">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
 
             <div class="modal-header">
 
-                @* Antes: la X dependía solo de data-dismiss y no estaba funcionando bien.
-                    Ahora: llama directamente a cerrarModalDetalle(), que está en solicitudes.js. *@
                 <button type="button" class="close" onclick="cerrarModalDetalle()" aria-label="Cerrar">
                     <span aria-hidden="true">&times;</span>
                 </button>
 
-                <h4 class="modal-title" id="tituloModalDetalle">Detalle de la solicitud</h4>
+                <h4 class="modal-title" id="tituloModalDetalle">
+                    Detalle de la solicitud
+                </h4>
             </div>
 
             <div class="modal-body">
@@ -202,13 +191,9 @@
             </div>
 
             <div class="modal-footer">
-
-                @* Antes: este botón usaba data-dismiss y tampoco cerraba.
-                    Ahora: llama directo a cerrarModalDetalle(). *@
                 <button type="button" class="btn btn-default" onclick="cerrarModalDetalle()">
                     Cerrar
                 </button>
-
             </div>
 
         </div>
@@ -216,6 +201,6 @@
 </div>
 
 @section Scripts {
-    @* Se agrega versión para forzar al navegador a cargar el JS actualizado *@
+    @* Script externo que consume la API de solicitudes *@
     <script src="@Url.Content("~/Scripts/app/solicitudes.js?v=3")"></script>
 }

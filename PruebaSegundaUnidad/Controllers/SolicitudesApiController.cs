@@ -21,7 +21,7 @@ namespace PruebaSegundaUnidad.Controllers
             // Obtiene todas las solicitudes desde la base de datos.
             var solicitudes = _repo.ObtenerTodas();
 
-            // Devuelve la lista en formato JSON.
+            // Web API devuelve la lista como JSON al navegador.
             return Ok(solicitudes);
         }
 
@@ -36,13 +36,13 @@ namespace PruebaSegundaUnidad.Controllers
             // Busca una solicitud específica por su Id.
             var solicitud = _repo.ObtenerPorId(id);
 
-            // Si no existe, devuelve error 404.
+            // Si no existe, se responde con 404.
             if (solicitud == null)
             {
                 return NotFound();
             }
 
-            // Devuelve la solicitud encontrada en formato JSON.
+            // Si existe, se devuelve la solicitud como JSON.
             return Ok(solicitud);
         }
 
@@ -61,6 +61,7 @@ namespace PruebaSegundaUnidad.Controllers
             }
 
             // Revisa las validaciones del modelo.
+            // Ejemplo: área, tipo de problema, prioridad y descripción mínima.
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -69,13 +70,13 @@ namespace PruebaSegundaUnidad.Controllers
             // Inserta la solicitud en la base de datos.
             bool creada = _repo.Insertar(solicitud);
 
-            // Si no se pudo guardar, devuelve error.
+            // Si no se pudo guardar, se responde con error.
             if (!creada)
             {
                 return BadRequest("No se pudo registrar la solicitud.");
             }
 
-            // Devuelve mensaje de éxito para JavaScript.
+            // Mensaje que puede leer JavaScript.
             return Ok(new { mensaje = "Solicitud creada exitosamente." });
         }
 
@@ -93,7 +94,7 @@ namespace PruebaSegundaUnidad.Controllers
                 return BadRequest("No se recibió el nuevo estado.");
             }
 
-            // Revisa las validaciones del modelo.
+            // Revisa que el estado enviado sea válido.
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -102,13 +103,13 @@ namespace PruebaSegundaUnidad.Controllers
             // Actualiza solo el estado de la solicitud.
             bool actualizado = _repo.ActualizarEstado(id, request.IdEstado);
 
-            // Si no encontró la solicitud, devuelve error 404.
+            // Si no encontró la solicitud, devuelve 404.
             if (!actualizado)
             {
                 return NotFound();
             }
 
-            // Devuelve mensaje de éxito para JavaScript.
+            // Mensaje que puede leer JavaScript.
             return Ok(new { mensaje = "Estado actualizado correctamente." });
         }
 
@@ -123,13 +124,13 @@ namespace PruebaSegundaUnidad.Controllers
             // Elimina la solicitud según el Id recibido.
             bool eliminado = _repo.Eliminar(id);
 
-            // Si no encontró la solicitud, devuelve error 404.
+            // Si no encontró la solicitud, devuelve 404.
             if (!eliminado)
             {
                 return NotFound();
             }
 
-            // Devuelve mensaje de éxito para JavaScript.
+            // Mensaje que puede leer JavaScript.
             return Ok(new { mensaje = "Solicitud eliminada correctamente." });
         }
 

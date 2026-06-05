@@ -26,6 +26,7 @@ namespace PruebaSegundaUnidad.Repositories
 
             using (SqlConnection con = new SqlConnection(conexion))
             {
+                // Se usan JOIN para traer nombres descriptivos y no solo los Id.
                 string query = @"
                     SELECT 
                         S.Id,
@@ -54,6 +55,7 @@ namespace PruebaSegundaUnidad.Repositories
 
                 con.Open();
 
+                // ExecuteReader se usa porque el SELECT devuelve varias filas.
                 using (SqlDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
@@ -100,6 +102,7 @@ namespace PruebaSegundaUnidad.Repositories
 
                 SqlCommand cmd = new SqlCommand(query, con);
 
+                // Id del usuario usado para filtrar sus propias solicitudes.
                 cmd.Parameters.AddWithValue("@UsuarioId", usuarioId);
 
                 con.Open();
@@ -153,10 +156,12 @@ namespace PruebaSegundaUnidad.Repositories
 
                 SqlCommand cmd = new SqlCommand(query, con);
 
+                // Id de la solicitud buscada.
                 cmd.Parameters.AddWithValue("@Id", id);
 
                 con.Open();
 
+                // Se espera una sola fila.
                 using (SqlDataReader reader = cmd.ExecuteReader())
                 {
                     if (reader.Read())
@@ -178,6 +183,7 @@ namespace PruebaSegundaUnidad.Repositories
         {
             using (SqlConnection con = new SqlConnection(conexion))
             {
+                // EstadoSolicitudId queda en 1 porque una solicitud nueva parte como Pendiente.
                 string query = @"
                     INSERT INTO SolicitudesSoporte
                     (
@@ -210,6 +216,7 @@ namespace PruebaSegundaUnidad.Repositories
 
                 con.Open();
 
+                // ExecuteNonQuery se usa porque INSERT modifica la base de datos.
                 int filas = cmd.ExecuteNonQuery();
 
                 return filas > 0;
@@ -237,6 +244,7 @@ namespace PruebaSegundaUnidad.Repositories
 
                 con.Open();
 
+                // Si afectó una fila, la actualización fue correcta.
                 return cmd.ExecuteNonQuery() > 0;
             }
         }
@@ -258,6 +266,7 @@ namespace PruebaSegundaUnidad.Repositories
 
                 con.Open();
 
+                // Si afectó una fila, la eliminación fue correcta.
                 return cmd.ExecuteNonQuery() > 0;
             }
         }

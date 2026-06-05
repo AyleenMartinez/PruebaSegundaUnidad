@@ -15,34 +15,31 @@ namespace PruebaSegundaUnidad.Models
         // Id del usuario que creó la solicitud.
         public int UsuarioId { get; set; }
 
-        // Nombre del usuario, se muestra en la tabla.
+        // Nombre del usuario que se muestra en la tabla.
         public string NombreUsuario { get; set; }
 
-        // Correo del usuario, queda disponible si después se quiere mostrar o revisar.
+        // Correo del usuario asociado a la solicitud.
         public string CorreoUsuario { get; set; }
 
         #endregion
 
         #region Clasificación de la solicitud
 
-        // Antes: el área solo estaba como int y podía llegar en 0 si no se seleccionaba nada.
-        // Ahora: Range obliga a que el usuario seleccione un área válida desde el formulario.
+        // Área seleccionada en el formulario.
         [Range(1, int.MaxValue, ErrorMessage = "Debe seleccionar un área")]
         public int IdArea { get; set; }
 
         // Nombre del área, viene desde la tabla AreasSolicitantes.
         public string NombreArea { get; set; }
 
-        // Antes: el tipo de problema también podía llegar como 0.
-        // Ahora: se valida que venga un Id válido antes de registrar la solicitud.
+        // Tipo de problema seleccionado en el formulario.
         [Range(1, int.MaxValue, ErrorMessage = "Debe seleccionar un tipo de problema")]
         public int IdTipoProblema { get; set; }
 
         // Nombre del tipo de problema, viene desde la tabla TiposProblema.
         public string DescripcionProblema { get; set; }
 
-        // Antes: la prioridad dependía solo del select de la vista.
-        // Ahora: también se valida desde el modelo por seguridad.
+        // Prioridad seleccionada en el formulario.
         [Range(1, int.MaxValue, ErrorMessage = "Debe seleccionar una prioridad")]
         public int IdPrioridad { get; set; }
 
@@ -59,8 +56,7 @@ namespace PruebaSegundaUnidad.Models
 
         #region Descripción y fecha
 
-        // Antes: la descripción se recibía desde el formulario.
-        // Ahora: además se valida que no esté vacía y que tenga mínimo 10 caracteres.
+        // Descripción del problema escrito por el usuario.
         [Required(ErrorMessage = "La descripción es obligatoria")]
         [MinLength(10, ErrorMessage = "La descripción debe tener al menos 10 caracteres")]
         public string Descripcion { get; set; }
@@ -72,10 +68,11 @@ namespace PruebaSegundaUnidad.Models
     }
 
     // Modelo pequeño usado solo para actualizar el estado desde la API.
+    // Evita enviar toda la solicitud cuando solo cambia el estado.
     public class ActualizarEstadoRequest
     {
-        // Antes: el estado podía llegar con cualquier número.
-        // Ahora: solo acepta 1, 2 o 3, que corresponden a los estados del sistema.
+        // Estado nuevo de la solicitud.
+        // En el sistema se usan 1 = Pendiente, 2 = En proceso, 3 = Resuelto.
         [Range(1, 3, ErrorMessage = "Debe seleccionar un estado válido")]
         public int IdEstado { get; set; }
     }

@@ -5,10 +5,10 @@ namespace PruebaSegundaUnidad.Controllers
 {
     // Controlador MVC del módulo Solicitudes.
     // Este controlador solo carga la vista Razor.
-    // El registro, listado, edición y eliminación se hacen en la API.
+    // El registro, listado, actualización y eliminación se trabajan desde la API.
     public class SolicitudesController : Controller
     {
-        // Repositorio usado para llenar los select del formulario.
+        // Repositorio usado para cargar catálogos del formulario.
         private readonly CatalogoRepository _catalogoRepo = new CatalogoRepository();
 
         #region Vista principal
@@ -16,20 +16,16 @@ namespace PruebaSegundaUnidad.Controllers
         [HttpGet]
         public ActionResult Index()
         {
-            // Antes: si alguien escribía la URL directa, podía intentar entrar a la vista.
-            // Ahora: primero se revisa si existe sesión activa.
+            // Se valida que exista una sesión activa antes de mostrar la vista.
             if (Session["UsuarioId"] == null)
             {
-                // Si no hay sesión, se devuelve al login.
                 return RedirectToAction("Login", "Auth");
             }
 
-            // Antes: los select podían quedar fijos o escritos manualmente en la vista.
-            // Ahora: las áreas se cargan desde la base usando CatalogoRepository.
+            // Se cargan las áreas desde la base para llenar el select del formulario.
             ViewBag.Areas = _catalogoRepo.ObtenerAreas();
 
-            // Antes: los tipos de problema también podían quedar escritos a mano.
-            // Ahora: se cargan desde la base para mantenerlos dinámicos.
+            // Se cargan los tipos de problema desde la base para llenar el select del formulario.
             ViewBag.TiposProblema = _catalogoRepo.ObtenerTiposProblema();
 
             // Muestra la vista Views/Solicitudes/Index.cshtml.
