@@ -1,103 +1,171 @@
-﻿@model IEnumerable<PruebaSegundaUnidad.Models.Usuario>
+﻿@using System.Linq
+@model IEnumerable<PruebaSegundaUnidad.Models.Usuario>
 
 @{
     ViewBag.Title = "Gestión de Usuarios";
+
+    // Se prepara una lista segura para evitar errores si el modelo viene vacío.
+    var usuarios = Model ?? Enumerable.Empty<PruebaSegundaUnidad.Models.Usuario>();
+
+    // Resúmenes visuales del módulo.
+    var totalUsuarios = usuarios.Count();
+    var usuariosActivos = usuarios.Count(u => u.Estado);
+    var usuariosInactivos = usuarios.Count(u => !u.Estado);
+    var administradores = usuarios.Count(u => u.NombreRol == "Administrador");
 }
 
-<link href="@Url.Content("~/Content/usuarios.css")" rel="stylesheet" />
+<link href="@Url.Content("~/Content/usuarios.css?v=2")" rel="stylesheet" />
 
-<div class="row">
-    <div class="col-md-12">
+<div class="usuarios-page">
 
-        <h2 class="page-header">
-            Administración de Usuarios
+    <div class="usuarios-hero">
+        <div>
+            <span class="usuarios-etiqueta">Administración</span>
 
-            <a href="@Url.Action("Crear", "Usuarios")" class="btn btn-success pull-right">
-                Nuevo Usuario
-            </a>
-        </h2>
+            <h2>Gestión de cuentas del sistema</h2>
+
+            <p>
+                Desde este módulo el administrador puede crear cuentas, editar datos y activar o desactivar el acceso de usuarios.
+            </p>
+        </div>
+
+        <a href="@Url.Action("Crear", "Usuarios")" class="btn btn-nuevo-usuario">
+            Nuevo usuario
+        </a>
+    </div>
+
+    <div class="usuarios-resumen">
+
+        <div class="usuario-resumen-card">
+            <span>Total usuarios</span>
+            <strong>@totalUsuarios</strong>
+        </div>
+
+        <div class="usuario-resumen-card resumen-activos">
+            <span>Activos</span>
+            <strong>@usuariosActivos</strong>
+        </div>
+
+        <div class="usuario-resumen-card resumen-inactivos">
+            <span>Inactivos</span>
+            <strong>@usuariosInactivos</strong>
+        </div>
+
+        <div class="usuario-resumen-card resumen-admin">
+            <span>Administradores</span>
+            <strong>@administradores</strong>
+        </div>
 
     </div>
-</div>
 
-<div class="table-responsive">
-    <table class="table table-striped table-hover table-bordered tabla-usuarios">
+    <div class="usuarios-panel">
 
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Correo</th>
-                <th>Rol</th>
-                <th>Estado</th>
-                <th>Creación</th>
-                <th class="text-center columna-acciones">Acciones</th>
-            </tr>
-        </thead>
+        <div class="usuarios-panel-header">
+            <div>
+                <h3>Listado de cuentas</h3>
+                <p>Usuarios registrados en TechHelpWeb.</p>
+            </div>
+        </div>
 
-        <tbody>
+        <div class="table-responsive tabla-usuarios-wrapper">
 
-            @* Se revisa si existen usuarios para mostrar en la tabla *@
-            @if (Model != null && Model.Any())
-            {
-                foreach (var usuario in Model)
-                {
+            <table class="table tabla-usuarios">
+
+                <thead>
                     <tr>
-                        <td>@usuario.NombreCompleto</td>
-                        <td>@usuario.Correo</td>
-                        <td>@usuario.NombreRol</td>
-
-                        <td>
-                            @if (usuario.Estado)
-                            {
-                                <span class="label label-success">Activo</span>
-                            }
-                            else
-                            {
-                                <span class="label label-danger">Inactivo</span>
-                            }
-                        </td>
-
-                        <td>@usuario.FechaRegistro.ToString("dd-MM-yyyy")</td>
-
-                        <td class="text-center">
-
-                            @* Abre el formulario para editar los datos del usuario *@
-                            <a href="@Url.Action("Editar", "Usuarios", new { id = usuario.Id })"
-                               class="btn btn-info btn-sm">
-                                Editar
-                            </a>
-
-                            @* Cambia el estado activo/inactivo del usuario *@
-                            @if (usuario.Estado)
-                            {
-                                <a href="@Url.Action("CambiarEstado", "Usuarios", new { id = usuario.Id })"
-                                   class="btn btn-danger btn-sm"
-                                   onclick="return confirm('¿Estás seguro de que deseas desactivar a este usuario?');">
-                                    Desactivar
-                                </a>
-                            }
-                            else
-                            {
-                                <a href="@Url.Action("CambiarEstado", "Usuarios", new { id = usuario.Id })"
-                                   class="btn btn-success btn-sm"
-                                   onclick="return confirm('¿Estás seguro de que deseas reactivar a este usuario?');">
-                                    Activar
-                                </a>
-                            }
-
-                        </td>
+                        <th>Cuenta</th>
+                        <th>Contacto</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Registro</th>
+                        <th class="text-center">Gestión</th>
                     </tr>
-                }
-            }
-            else
-            {
-                <tr>
-                    <td colspan="6" class="text-center">
-                        No hay usuarios registrados en el sistema.
-                    </td>
-                </tr>
-            }
+                </thead>
 
-        </tbody>
-    </table>
+                <tbody>
+
+                    @* Se revisa si existen usuarios para mostrar en la tabla *@
+                    @if (usuarios.Any())
+                    {
+                        foreach (var usuario in usuarios)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="usuario-nombre">@usuario.NombreCompleto</span>
+                                    <span class="usuario-alias">@usuario.NombreUsuario</span>
+                                </td>
+
+                                <td>
+                                    <span class="usuario-correo">@usuario.Correo</span>
+                                </td>
+
+                                <td>
+                                    <span class="badge-rol">@usuario.NombreRol</span>
+                                </td>
+
+                                <td>
+                                    @if (usuario.Estado)
+                                    {
+                                        <span class="badge-estado estado-activo">Activo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge-estado estado-inactivo">Inactivo</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    <span class="usuario-fecha">
+                                        @usuario.FechaRegistro.ToString("dd-MM-yyyy")
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <div class="acciones-usuarios">
+
+                                        @* Abre el formulario para editar los datos del usuario *@
+                                        <a href="@Url.Action("Editar", "Usuarios", new { id = usuario.Id })"
+                                           class="btn btn-usuario-editar">
+                                            Editar
+                                        </a>
+
+                                        @* Cambia el estado activo/inactivo del usuario *@
+                                        @if (usuario.Estado)
+                                        {
+                                            <a href="@Url.Action("CambiarEstado", "Usuarios", new { id = usuario.Id })"
+                                               class="btn btn-usuario-desactivar"
+                                               onclick="return confirm('¿Estás seguro de que deseas desactivar a este usuario?');">
+                                                Desactivar
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <a href="@Url.Action("CambiarEstado", "Usuarios", new { id = usuario.Id })"
+                                               class="btn btn-usuario-activar"
+                                               onclick="return confirm('¿Estás seguro de que deseas reactivar a este usuario?');">
+                                                Activar
+                                            </a>
+                                        }
+
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center tabla-vacia">
+                                No hay usuarios registrados en el sistema.
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+
+        </div>
+
+    </div>
+
 </div>

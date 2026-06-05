@@ -4,102 +4,113 @@
     ViewBag.Title = "Editar Usuario";
 }
 
-<div class="row">
-    <div class="col-md-8 col-md-offset-2">
+<link href="@Url.Content("~/Content/usuarios.css?v=2")" rel="stylesheet" />
 
-        <h2 class="page-header">Editar Usuario</h2>
+<div class="usuarios-page">
 
-        <div class="panel panel-default panel-soporte">
-            <div class="panel-body">
+    <div class="formulario-usuario-header">
+        <div>
+            <span class="usuarios-etiqueta">Edición de cuenta</span>
 
-                @* Muestra errores generales del formulario *@
-                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            <h2>Editar usuario</h2>
 
-                @* Formulario MVC que envía los cambios al método Editar del UsuariosController *@
-                @using (Html.BeginForm("Editar", "Usuarios", FormMethod.Post))
-                {
-                    @Html.AntiForgeryToken()
+            <p>
+                Actualiza datos de cuenta, rol y estado de acceso del usuario seleccionado.
+            </p>
+        </div>
+    </div>
 
-                    @* Se mantiene el Id del usuario editado *@
-                    @Html.HiddenFor(m => m.Id)
+    <div class="formulario-usuario-card">
 
-                    <div class="row">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
-                        <div class="col-md-6 form-group">
-                            <label>Nombre Completo <span class="text-danger">*</span></label>
+        @* Formulario MVC que envía los cambios al método Editar del UsuariosController *@
+        @using (Html.BeginForm("Editar", "Usuarios", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
 
-                            @Html.TextBoxFor(m => m.NombreCompleto, new { @class = "form-control" })
+            @* Se mantiene el Id del usuario editado *@
+            @Html.HiddenFor(m => m.Id)
 
-                            @Html.ValidationMessageFor(m => m.NombreCompleto, "", new { @class = "text-danger" })
-                        </div>
+            <div class="row">
 
-                        <div class="col-md-6 form-group">
-                            <label>Nombre de Usuario <span class="text-danger">*</span></label>
+                <div class="col-md-6 form-group usuario-form-group">
+                    <label>Nombre completo <span class="text-danger">*</span></label>
 
-                            @Html.TextBoxFor(m => m.NombreUsuario, new { @class = "form-control" })
+                    @Html.TextBoxFor(m => m.NombreCompleto, new { @class = "form-control" })
 
-                            @Html.ValidationMessageFor(m => m.NombreUsuario, "", new { @class = "text-danger" })
-                        </div>
+                    @Html.ValidationMessageFor(m => m.NombreCompleto, "", new { @class = "text-danger" })
+                </div>
 
-                    </div>
+                <div class="col-md-6 form-group usuario-form-group">
+                    <label>Nombre de usuario <span class="text-danger">*</span></label>
 
-                    <div class="row">
+                    @Html.TextBoxFor(m => m.NombreUsuario, new { @class = "form-control" })
 
-                        <div class="col-md-6 form-group">
-                            <label>Correo Electrónico <span class="text-danger">*</span></label>
-
-                            @Html.TextBoxFor(m => m.Correo, new { @class = "form-control", type = "email" })
-
-                            @Html.ValidationMessageFor(m => m.Correo, "", new { @class = "text-danger" })
-                        </div>
-
-                        <div class="col-md-6 form-group">
-                            <label>Rol en el Sistema <span class="text-danger">*</span></label>
-
-                            <select class="form-control" name="RolId" required>
-                                @foreach (var rol in ViewBag.Roles)
-                                {
-                                    <option value="@rol.Id" @(Model.RolId == rol.Id ? "selected" : "")>
-                                        @rol.NombreRol
-                                    </option>
-                                }
-                            </select>
-
-                            @Html.ValidationMessageFor(m => m.RolId, "", new { @class = "text-danger" })
-                        </div>
-
-                    </div>
-
-                    <div class="row">
-
-                        <div class="col-md-12 form-group">
-                            <label>Estado <span class="text-danger">*</span></label>
-
-                            <select class="form-control" name="Estado" required>
-                                <option value="true" @(Model.Estado ? "selected" : "")>Activo</option>
-                                <option value="false" @(!Model.Estado ? "selected" : "")>Inactivo</option>
-                            </select>
-                        </div>
-
-                    </div>
-
-                    <hr />
-
-                    <div class="text-right">
-                        <a href="@Url.Action("Index", "Usuarios")" class="btn btn-default">
-                            Cancelar
-                        </a>
-
-                        <button type="submit" class="btn btn-primary">
-                            Guardar Cambios
-                        </button>
-                    </div>
-                }
+                    @Html.ValidationMessageFor(m => m.NombreUsuario, "", new { @class = "text-danger" })
+                </div>
 
             </div>
-        </div>
+
+            <div class="row">
+
+                <div class="col-md-6 form-group usuario-form-group">
+                    <label>Correo electrónico <span class="text-danger">*</span></label>
+
+                    @Html.TextBoxFor(m => m.Correo, new { @class = "form-control", type = "email" })
+
+                    @Html.ValidationMessageFor(m => m.Correo, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-md-6 form-group usuario-form-group">
+                    <label>Rol en el sistema <span class="text-danger">*</span></label>
+
+                    <select class="form-control" name="RolId" required>
+                        @foreach (var rol in ViewBag.Roles)
+                        {
+                            <option value="@rol.Id" @(Model.RolId == rol.Id ? "selected" : "")>
+                                @rol.NombreRol
+                            </option>
+                        }
+                    </select>
+
+                    @Html.ValidationMessageFor(m => m.RolId, "", new { @class = "text-danger" })
+                </div>
+
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-6 form-group usuario-form-group">
+                    <label>Estado <span class="text-danger">*</span></label>
+
+                    <select class="form-control" name="Estado" required>
+                        <option value="true" @(Model.Estado ? "selected" : "")>Activo</option>
+                        <option value="false" @(!Model.Estado ? "selected" : "")>Inactivo</option>
+                    </select>
+
+                    <span class="campo-ayuda-usuario">
+                        Un usuario inactivo no podrá iniciar sesión.
+                    </span>
+                </div>
+
+            </div>
+
+            <div class="acciones-formulario-usuario">
+
+                <a href="@Url.Action("Index", "Usuarios")" class="btn btn-cancelar-usuario">
+                    Cancelar
+                </a>
+
+                <button type="submit" class="btn btn-guardar-usuario">
+                    Guardar cambios
+                </button>
+
+            </div>
+        }
 
     </div>
+
 </div>
 
 @section Scripts {

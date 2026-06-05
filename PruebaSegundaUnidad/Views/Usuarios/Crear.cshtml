@@ -4,118 +4,127 @@
     ViewBag.Title = "Registrar Usuario";
 }
 
-@* CSS reutilizable para mostrar u ocultar contraseña *@
+<link href="@Url.Content("~/Content/usuarios.css?v=2")" rel="stylesheet" />
 <link href="@Url.Content("~/Content/password-toggle.css")" rel="stylesheet" />
 
-<div class="row">
-    <div class="col-md-8 col-md-offset-2">
+<div class="usuarios-page">
 
-        <h2 class="page-header">Registrar Nuevo Usuario</h2>
+    <div class="formulario-usuario-header">
+        <div>
+            <span class="usuarios-etiqueta">Nueva cuenta</span>
 
-        <div class="panel panel-default panel-soporte">
-            <div class="panel-body">
+            <h2>Registrar usuario</h2>
 
-                @* Muestra errores generales del formulario *@
-                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            <p>
+                Crea una cuenta nueva y asigna su rol de acceso dentro del sistema.
+            </p>
+        </div>
+    </div>
 
-                @* Formulario MVC que envía los datos al método Crear del UsuariosController *@
-                @using (Html.BeginForm("Crear", "Usuarios", FormMethod.Post))
-                {
-                    @Html.AntiForgeryToken()
+    <div class="formulario-usuario-card">
 
-                    <div class="row">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
-                        <div class="col-md-6 form-group">
-                            <label>Nombre Completo <span class="text-danger">*</span></label>
+        @* Formulario MVC que envía los datos al método Crear del UsuariosController *@
+        @using (Html.BeginForm("Crear", "Usuarios", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
 
-                            @Html.TextBoxFor(m => m.NombreCompleto, new { @class = "form-control", placeholder = "Ej. Belén Faúndez" })
+            <div class="row">
 
-                            @Html.ValidationMessageFor(m => m.NombreCompleto, "", new { @class = "text-danger" })
-                        </div>
+                <div class="col-md-6 form-group usuario-form-group">
+                    <label>Nombre completo <span class="text-danger">*</span></label>
 
-                        <div class="col-md-6 form-group">
-                            <label>Nombre de Usuario <span class="text-danger">*</span></label>
+                    @Html.TextBoxFor(m => m.NombreCompleto, new { @class = "form-control", placeholder = "Ej. Belén Faúndez" })
 
-                            @Html.TextBoxFor(m => m.NombreUsuario, new { @class = "form-control", placeholder = "Ej. bfaundez" })
+                    @Html.ValidationMessageFor(m => m.NombreCompleto, "", new { @class = "text-danger" })
+                </div>
 
-                            @Html.ValidationMessageFor(m => m.NombreUsuario, "", new { @class = "text-danger" })
-                        </div>
+                <div class="col-md-6 form-group usuario-form-group">
+                    <label>Nombre de usuario <span class="text-danger">*</span></label>
 
-                    </div>
+                    @Html.TextBoxFor(m => m.NombreUsuario, new { @class = "form-control", placeholder = "Ej. bfaundez" })
 
-                    <div class="row">
-
-                        <div class="col-md-6 form-group">
-                            <label>Correo Electrónico <span class="text-danger">*</span></label>
-
-                            @Html.TextBoxFor(m => m.Correo, new { @class = "form-control", type = "email", placeholder = "correo@empresa.cl" })
-
-                            @Html.ValidationMessageFor(m => m.Correo, "", new { @class = "text-danger" })
-                        </div>
-
-                        <div class="col-md-6 form-group">
-                            <label>Contraseña <span class="text-danger">*</span></label>
-
-                            <div class="password-wrapper">
-                                @Html.PasswordFor(m => m.ClaveHash, new { @class = "form-control", id = "ClaveHash" })
-
-                                <button type="button"
-                                        class="password-toggle"
-                                        data-target="ClaveHash">
-                                    Ver
-                                </button>
-                            </div>
-
-                            @Html.ValidationMessageFor(m => m.ClaveHash, "", new { @class = "text-danger" })
-                        </div>
-
-                    </div>
-
-                    <div class="row">
-
-                        <div class="col-md-6 form-group">
-                            <label>Rol en el Sistema <span class="text-danger">*</span></label>
-
-                            <select class="form-control" name="RolId" required>
-                                <option value="">-- Seleccione un Rol --</option>
-
-                                @foreach (var rol in ViewBag.Roles)
-                                {
-                                    <option value="@rol.Id">@rol.NombreRol</option>
-                                }
-                            </select>
-
-                            @Html.ValidationMessageFor(m => m.RolId, "", new { @class = "text-danger" })
-                        </div>
-
-                        <div class="col-md-6 form-group">
-                            <label>Estado <span class="text-danger">*</span></label>
-
-                            <select class="form-control" name="Estado" required>
-                                <option value="true" selected>Activo</option>
-                                <option value="false">Inactivo</option>
-                            </select>
-                        </div>
-
-                    </div>
-
-                    <hr />
-
-                    <div class="text-right">
-                        <a href="@Url.Action("Index", "Usuarios")" class="btn btn-default">
-                            Cancelar
-                        </a>
-
-                        <button type="submit" class="btn btn-primary">
-                            Guardar Usuario
-                        </button>
-                    </div>
-                }
+                    @Html.ValidationMessageFor(m => m.NombreUsuario, "", new { @class = "text-danger" })
+                </div>
 
             </div>
-        </div>
+
+            <div class="row">
+
+                <div class="col-md-6 form-group usuario-form-group">
+                    <label>Correo electrónico <span class="text-danger">*</span></label>
+
+                    @Html.TextBoxFor(m => m.Correo, new { @class = "form-control", type = "email", placeholder = "correo@empresa.cl" })
+
+                    @Html.ValidationMessageFor(m => m.Correo, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-md-6 form-group usuario-form-group">
+                    <label>Contraseña <span class="text-danger">*</span></label>
+
+                    <div class="password-wrapper">
+                        @Html.PasswordFor(m => m.ClaveHash, new { @class = "form-control", id = "ClaveHash" })
+
+                        <button type="button"
+                                class="password-toggle"
+                                data-target="ClaveHash">
+                            Ver
+                        </button>
+                    </div>
+
+                    @Html.ValidationMessageFor(m => m.ClaveHash, "", new { @class = "text-danger" })
+                </div>
+
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-6 form-group usuario-form-group">
+                    <label>Rol en el sistema <span class="text-danger">*</span></label>
+
+                    <select class="form-control" name="RolId" required>
+                        <option value="">Seleccione un rol</option>
+
+                        @foreach (var rol in ViewBag.Roles)
+                        {
+                            <option value="@rol.Id">@rol.NombreRol</option>
+                        }
+                    </select>
+
+                    @Html.ValidationMessageFor(m => m.RolId, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-md-6 form-group usuario-form-group">
+                    <label>Estado inicial <span class="text-danger">*</span></label>
+
+                    <select class="form-control" name="Estado" required>
+                        <option value="true" selected>Activo</option>
+                        <option value="false">Inactivo</option>
+                    </select>
+
+                    <span class="campo-ayuda-usuario">
+                        El estado define si la cuenta podrá iniciar sesión.
+                    </span>
+                </div>
+
+            </div>
+
+            <div class="acciones-formulario-usuario">
+
+                <a href="@Url.Action("Index", "Usuarios")" class="btn btn-cancelar-usuario">
+                    Cancelar
+                </a>
+
+                <button type="submit" class="btn btn-guardar-usuario">
+                    Guardar usuario
+                </button>
+
+            </div>
+        }
 
     </div>
+
 </div>
 
 @section Scripts {
