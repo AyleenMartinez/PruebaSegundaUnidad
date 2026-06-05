@@ -4,23 +4,44 @@
     ViewBag.Title = "Mi Perfil";
 }
 
-@* CSS propio de la vista Perfil *@
-<link href="@Url.Content("~/Content/perfil.css")" rel="stylesheet" />
-
 @* CSS reutilizable para el botón Ver/Ocultar contraseña *@
 <link href="@Url.Content("~/Content/password-toggle.css")" rel="stylesheet" />
 
-<div class="row perfil-contenedor">
+@* CSS propio de la vista Perfil. El ?v=4 fuerza al navegador a cargar los estilos nuevos *@
+<link href="@Url.Content("~/Content/perfil.css?v=4")" rel="stylesheet" />
 
-    <div class="col-md-7 col-md-offset-2">
+<div class="perfil-page">
 
-        <h2>Mi Perfil</h2>
+    <div class="perfil-hero">
 
-        <div class="perfil-card">
+        <div>
+            <span class="perfil-etiqueta">Cuenta personal</span>
 
-            <div class="perfil-seccion">
+            <h2>Mi perfil</h2>
 
-                <h4>Datos personales</h4>
+            <p>
+                Revisa tus datos de cuenta y actualiza tu contraseña de acceso al sistema.
+            </p>
+        </div>
+
+        <div class="perfil-resumen">
+            <span>Sesión activa</span>
+            <strong>@Model.NombreCompleto</strong>
+            <small>@Model.Correo</small>
+        </div>
+
+    </div>
+
+    <div class="row perfil-grid">
+
+        <div class="col-md-5">
+
+            <div class="perfil-card">
+
+                <div class="perfil-card-header">
+                    <h3>Datos personales</h3>
+                    <p>Información básica asociada a tu cuenta.</p>
+                </div>
 
                 @* Formulario MVC para actualizar solo el nombre completo *@
                 @using (Html.BeginForm("ActualizarDatos", "Perfil", FormMethod.Post))
@@ -44,34 +65,41 @@
                         @* El correo se muestra, pero no se edita desde Mi Perfil *@
                         @Html.TextBoxFor(m => m.Correo, new { @class = "form-control", type = "email", @readonly = "readonly" })
 
-                        
+                        <small class="perfil-ayuda">
+                            El correo está asociado a la cuenta y no se modifica desde esta pantalla.
+                        </small>
                     </div>
 
                     @* Mensaje de éxito para datos personales *@
                     if (TempData["MensajePerfil"] != null)
                     {
-                        <div class="alert alert-success">
+                        <div class="alert alert-success perfil-alerta">
                             @TempData["MensajePerfil"]
                         </div>
                     }
 
-                    <button type="submit" class="btn btn-success perfil-btn">
+                    <button type="submit" class="btn btn-perfil-guardar">
                         Guardar datos
                     </button>
                 }
 
             </div>
 
-            <hr class="perfil-separador" />
+        </div>
 
-            <div class="perfil-seccion">
+        <div class="col-md-7">
 
-                <h4>Cambio de contraseña</h4>
+            <div class="perfil-card perfil-card-seguridad">
+
+                <div class="perfil-card-header">
+                    <h3>Seguridad de acceso</h3>
+                    <p>Cambia tu contraseña validando primero la clave actual.</p>
+                </div>
 
                 @* Mensaje de éxito para cambio de contraseña *@
                 @if (TempData["MensajeClave"] != null)
                 {
-                    <div class="alert alert-success">
+                    <div class="alert alert-success perfil-alerta">
                         @TempData["MensajeClave"]
                     </div>
                 }
@@ -136,7 +164,7 @@
                         @Html.ValidationMessageFor(m => m.ConfirmarClave, "", new { @class = "text-danger" })
                     </div>
 
-                    <button type="submit" class="btn btn-primary perfil-btn">
+                    <button type="submit" class="btn btn-perfil-clave">
                         Cambiar contraseña
                     </button>
                 }
@@ -146,6 +174,7 @@
         </div>
 
     </div>
+
 </div>
 
 @section Scripts {
